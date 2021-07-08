@@ -1,11 +1,10 @@
 syntax="proto3";
 
-import "github.com/albukhary/student-book-course/coursepb";
 import "google/protobuf/empty.proto";
 
 package student;
 
-option go_package="studentpb";
+option go_package=".studentpb";
 
 message Student {
     int32 id = 1;

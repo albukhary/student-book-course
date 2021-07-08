@@ -4,7 +4,7 @@ import "google/protobuf/empty.proto";
 
 package book;
 
-option go_package = "bookpb";
+option go_package = ".bookpb";
 
 message Book {
     int32 id = 1;

@@ -4,7 +4,7 @@ import "google/protobuf/empty.proto";
 
 package course;
 
-option go_package = "coursepb";
+option go_package = ".coursepb";
 
 message Course {
     string instructor = 1;
