@@ -1,0 +1,78 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+package course;
+
+option go_package = "coursepb";
+
+message Course {
+    string instructor = 1;
+    string title = 2;
+}
+
+message CreateCourseRequest {
+    Course course = 1;
+}
+
+message CreateCourseResponse {
+    Course course = 1;
+}
+
+message GetCourseRequest {
+    int32 id =1;
+}
+
+message GetCourseResponse {
+    Course course = 1;
+}
+
+message UpdateCourseRequest {
+    Course course = 1;
+}
+
+message UpdateCourseResponse {
+    Course course = 1;
+}
+
+message DeleteCourseRequest {
+    int32 id = 1;
+}
+
+message DeleteCourseResponse {
+    Course course = 1;
+}
+
+// message GetAllCoursesRequest {}
+
+message GetAllCoursesResponse {
+    repeated Course courses = 1;
+}
+
+// Get Enrolled Students - started
+message Student {
+    int32 id = 1;
+    string first_name = 2;
+    string last_name = 3;
+    string email = 4;
+}
+
+message GetEnrolledStudentsRequest {
+    int32 course_id = 1;
+}
+
+message GetEnrolledStudentsResponse {
+    repeated Student students = 1;
+}
+// Get Enrolled Students - finished
+
+service CourseService {
+    rpc CreateCourse(CreateCourseRequest) returns (CreateCourseResponse){};
+    rpc GetCourse(GetCourseRequest) returns (GetCourseResponse){};
+    rpc UpdateCourse(UpdateCourseRequest) returns (UpdateCourseResponse){};
+    rpc DeleteCourse(DeleteCourseRequest) returns (DeleteCourseResponse){};
+
+    rpc GetAllCourses(google.protobuf.Empty) returns (GetAllCoursesResponse) {};
+
+    rpc GetEnrolledStudents(GetEnrolledStudentsRequest) returns (GetEnrolledStudentsResponse){};
+}

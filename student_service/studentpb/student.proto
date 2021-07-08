@@ -1,0 +1,98 @@
+syntax="proto3";
+
+import "github.com/albukhary/student-book-course/coursepb";
+import "google/protobuf/empty.proto";
+
+package student;
+
+option go_package="studentpb";
+
+message Student {
+    int32 id = 1;
+    string first_name = 2;
+    string last_name = 3;
+    string email = 4;
+}
+
+message CreateStudentRequest {
+    Student student = 1;
+}
+
+message CreateStudentResponse {
+    Student student = 1;
+}
+
+message GetStudentRequest {
+    int32 id = 1;
+}
+
+message GetStudentResponse{
+    Student student = 1;
+}
+
+message UpdateStudentRequest {
+    Student student = 1;
+}
+
+message UpdateStudentResponse {
+    Student student = 1;
+}
+
+message DeleteStudentRequest {
+    int32 id = 1;
+}
+
+message DeleteStudentResponse {
+    Student student = 1;
+}
+
+// Is it possible to get all students without passing empty message as an argument
+// message GetAllStudentsRequest {}
+
+message GetAllStudentsResponse {
+    repeated Student students = 1;
+}
+
+// Course related - started
+message Course {
+    string instructor = 1;
+    string title = 2;
+}
+
+message GetEnrolledCoursesRequest {
+    int32 student_id = 1;
+}
+
+message GetEnrolledCoursesResponse{
+    repeated Course courses=1;
+}
+// Course related - finished
+
+// Book related - started
+message Book {
+    int32 id = 1;
+    string title = 2;
+    string author = 3;
+}
+
+message GetBorrowedBooksRequest {
+    int32 student_id = 1;
+}
+
+message GetBorrowedBooksResponse {
+    repeated Book books = 1;
+}
+// Book related - finished
+
+service StudentService {
+    rpc CreateStudent(CreateStudentRequest) returns (CreateStudentResponse){};
+    rpc GetStudent(GetStudentRequest) returns (GetStudentResponse){};
+    rpc UpdateStudent(UpdateStudentRequest) returns (UpdateStudentResponse){};
+    rpc DeleteStudent(DeleteStudentRequest) returns (DeleteStudentResponse){};
+
+    rpc GetAllStudents(google.protobuf.Empty) returns (GetAllStudentsResponse){};
+
+    rpc GetEnrolledCourses(GetEnrolledCoursesRequest) returns (GetEnrolledCoursesResponse ){};
+
+    rpc GetBorrowedBooks(GetBorrowedBooksRequest) returns (GetBorrowedBooksResponse){};
+}
