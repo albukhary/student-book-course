@@ -7,8 +7,9 @@ package course;
 option go_package = ".coursepb";
 
 message Course {
-    string instructor = 1;
-    string title = 2;
+    int32 course_id = 1;
+    string instructor = 2;
+    string title = 3;
 }
 
 message CreateCourseRequest {
