@@ -1,0 +1,98 @@
+definitions:
+  main.Student:
+    properties:
+      email:
+        type: string
+      firstName:
+        type: string
+      id:
+        type: integer
+      lastName:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /create/student:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Student details
+        in: body
+        name: details
+        required: true
+        schema:
+          $ref: '#/definitions/main.Student'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.Student'
+      summary: Creates a student record with user input details and writes into database
+  /delete/student/{id}:
+    delete:
+      parameters:
+      - description: Student ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.Student'
+      summary: Deletes a student with the specified ID
+  /student/{id}:
+    get:
+      parameters:
+      - description: Student ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.Student'
+      summary: Retrieves user based on given ID
+  /students:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/main.Student'
+            type: array
+      summary: Retrieves the list of all students
+  /update/student/{id}:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Updated Student Details
+        in: body
+        name: details
+        required: true
+        schema:
+          $ref: '#/definitions/main.Student'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.Student'
+      summary: Updates a student record with user input details and writes into database
+swagger: "2.0"

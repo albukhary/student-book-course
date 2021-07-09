@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/golang/protobuf/ptypes/empty"
+
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 
@@ -270,7 +271,9 @@ func (*server) GetBorrowedBooks(ctx context.Context, req *pb.GetBorrowedBooksReq
 
 	return res, nil
 }
+
 func main() {
+
 	setUpDatabase()
 
 	// Create a network listener, bind it to port 50051
@@ -305,6 +308,6 @@ func setUpDatabase() {
 	//open and connect to the database at the same time
 	db, err = sqlx.Connect(dialect, dbURI)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Database connection error : %v\n", err)
 	}
 }
