@@ -184,18 +184,15 @@ func (*server) DeleteStudent(ctx context.Context, req *pb.DeleteStudentRequest) 
 
 func (*server) GetEnrolledCourses(ctx context.Context, req *pb.GetEnrolledCoursesRequest) (*pb.GetEnrolledCoursesResponse, error) {
 	var student Student
-	type student_course struct {
-		student_id int32
-		course_id  int32
-	}
-	var student_courses []student_course
+
+	var course_ids []int
 
 	var course Course
 
 	student.ID = int(req.StudentId)
 
 	// Use db.Select() to write all the rows in a slice
-	err := db.Select(&student_courses, "SELECT * FROM student_course")
+	err := db.Select(&course_ids, "SELECT course_id FROM student_course WHERE student_id = $1", student.ID)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -203,10 +200,10 @@ func (*server) GetEnrolledCourses(ctx context.Context, req *pb.GetEnrolledCourse
 	var messageCourses []*pb.Course
 	var messageCourse pb.Course
 
-	for _, student_course := range student_courses {
+	for _, course_id := range course_ids {
 
 		// Use db.Select() to write all the rows in a slice
-		err := db.Get(&course, "SELECT * FROM course WHERE course_id = $1", student_course.course_id)
+		err := db.Get(&course, "SELECT * FROM course WHERE course_id = $1", course_id)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -229,18 +226,15 @@ func (*server) GetEnrolledCourses(ctx context.Context, req *pb.GetEnrolledCourse
 
 func (*server) GetBorrowedBooks(ctx context.Context, req *pb.GetBorrowedBooksRequest) (*pb.GetBorrowedBooksResponse, error) {
 	var student Student
-	type student_book struct {
-		student_id int32
-		book_id    int32
-	}
-	var student_books []student_book
+
+	var book_ids []int
 
 	var book Book
 
 	student.ID = int(req.StudentId)
 
 	// Use db.Select() to write all the rows in a slice
-	err := db.Select(&student_books, "SELECT * FROM student_book")
+	err := db.Select(&book_ids, "SELECT book_id FROM student_book WHERE student_id = $1", student.ID)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -248,10 +242,10 @@ func (*server) GetBorrowedBooks(ctx context.Context, req *pb.GetBorrowedBooksReq
 	var messageBooks []*pb.Book
 	var messageBook pb.Book
 
-	for _, student_book := range student_books {
+	for _, book_id := range book_ids {
 
 		// Use db.Select() to write all the rows in a slice
-		err := db.Get(&book, "SELECT * FROM book WHERE book_id = $1", student_book.book_id)
+		err := db.Get(&book, "SELECT * FROM book WHERE book_id = $1", book_id)
 		if err != nil {
 			log.Fatal(err)
 		}
