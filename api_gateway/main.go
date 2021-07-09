@@ -25,6 +25,18 @@ type Student struct {
 	Email     string `db:"email"`
 }
 
+type Course struct {
+	ID         int    `db:"course_id`
+	Instructor string `db:"instructor"`
+	Title      string `db:"title"`
+}
+
+type Book struct {
+	ID     int    `db:"book_id`
+	Title  string `db:"title"`
+	Author string `db:"author"`
+}
+
 var studentServiceClient studentpb.StudentServiceClient
 
 func main() {
@@ -54,6 +66,8 @@ func setupRoutes(app *fiber.App) {
 	})
 	app.Get("/students", getStudents)
 	app.Get("/student/:id", getStudent)
+	app.Get("/courses/student/:id", getEnrolledCourses)
+	app.Get("/books/student/:id", getBorrowedBooks)
 	app.Post("/create/student", createStudent)
 	app.Delete("/delete/student/:id", deleteStudent)
 	app.Put("update/student/:id", updateStudent)
@@ -245,4 +259,90 @@ func updateStudent(c *fiber.Ctx) error {
 
 	// print the newly updated student details
 	return c.JSON(student)
+}
+
+// getEnrolledCourses godoc
+// @Summary Retrieves courses of astudent based on given ID
+// @Produce json
+// @Param id path integer true "Student ID"
+// @Success 200 {object} []Course
+// @Router /courses/student/{id} [get]
+func getEnrolledCourses(c *fiber.Ctx) error {
+	idParam := c.Params("id")
+
+	// ID is initially a string when we get it from JSON
+	// convert into int to use in a query
+	id, err1 := strconv.Atoi(idParam)
+	if err1 != nil {
+		log.Fatal(err1)
+	}
+
+	// Create RPC request
+	req := &studentpb.GetEnrolledCoursesRequest{
+		StudentId: int32(id),
+	}
+
+	// Send RPc request and get RPC response
+	res, err := studentServiceClient.GetEnrolledCourses(context.Background(), req)
+	if err != nil {
+		log.Fatalf("Error getting enroller courses RPC. Error : %v\n", err)
+	}
+
+	var courses []Course
+	var course Course
+	// iterate through courses and write them to courses array struct
+	for _, messageCourse := range res.Courses {
+
+		course.ID = int(messageCourse.CourseId)
+		course.Instructor = messageCourse.Instructor
+		course.Title = messageCourse.Title
+
+		courses = append(courses, course)
+	}
+
+	// reutrn coursesto the browser as JSON
+	return c.JSON(courses)
+}
+
+// getBorrowedBooks godoc
+// @Summary Retrieves borrowed books of astudent based on given ID
+// @Produce json
+// @Param id path integer true "Student ID"
+// @Success 200 {object} []Book
+// @Router /books/student/{id} [get]
+func getBorrowedBooks(c *fiber.Ctx) error {
+	idParam := c.Params("id")
+
+	// ID is initially a string when we get it from JSON
+	// convert into int to use in a query
+	id, err1 := strconv.Atoi(idParam)
+	if err1 != nil {
+		log.Fatal(err1)
+	}
+
+	// Create RPC request
+	req := &studentpb.GetBorrowedBooksRequest{
+		StudentId: int32(id),
+	}
+
+	// Send RPc request and get RPC response
+	res, err := studentServiceClient.GetBorrowedBooks(context.Background(), req)
+	if err != nil {
+		log.Fatalf("Error getting borrowed books RPC. Error : %v\n", err)
+	}
+
+	var books []Book
+	var book Book
+	// iterate through books and write them to books array struct
+	for _, messageBook := range res.Books {
+
+		book.ID = int(messageBook.Id)
+		book.Title = messageBook.Title
+		book.Author = messageBook.Author
+
+		books = append(books, book)
+	}
+
+	// reutrn books to the browser as JSON
+	return c.JSON(books)
 }
