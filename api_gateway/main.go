@@ -26,13 +26,13 @@ type Student struct {
 }
 
 type Course struct {
-	CourseId   int    `db:"course_id`
+	CourseId   int    `db:"course_id"`
 	Instructor string `db:"instructor"`
 	Title      string `db:"title"`
 }
 
 type Book struct {
-	BookId int    `db:"book_id`
+	BookId int    `db:"book_id"`
 	Title  string `db:"title"`
 	Author string `db:"author"`
 }
@@ -101,7 +101,7 @@ func createStudent(c *fiber.Ctx) error {
 	// Invoke gRPC call to the StudentService Server
 	res, err := studentServiceClient.CreateStudent(context.Background(), req)
 	if err != nil {
-		log.Fatal("Error creating a student from gRPC Student Service Server: %v", err)
+		log.Fatalf("Error creating a student from gRPC Student Service Server: %v", err)
 	}
 
 	// writethe details from gRPC response to the struct
@@ -129,9 +129,7 @@ func getStudents(c *fiber.Ctx) error {
 		log.Fatalf("Error getting all students via gRPC. Error : %v\n", err)
 	}
 
-	var messageStudents []*studentpb.Student
-
-	messageStudents = res.Students
+	messageStudents := res.Students
 
 	for idx, messageStudent := range messageStudents {
 
