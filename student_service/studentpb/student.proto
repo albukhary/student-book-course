@@ -66,6 +66,22 @@ message GetEnrolledCoursesRequest {
 message GetEnrolledCoursesResponse{
     repeated Course courses=1;
 }
+
+message EnrollCourseRequest {
+    int32 course_id = 1;
+}
+
+message EnrollCourseResponse {
+    Course course = 1;
+}
+
+message DropCourseRequest {
+    int32 course_id = 1;
+}
+
+message DropCourseResponse {
+    Course course = 1;
+}
 // Course related - finished
 
 // Book related - started
@@ -82,6 +98,22 @@ message GetBorrowedBooksRequest {
 message GetBorrowedBooksResponse {
     repeated Book books = 1;
 }
+
+message BorrowBookRequest {
+    int32 book_id = 1;
+}
+
+message BorrowBookResponse {
+    Book book = 1;
+}
+
+message HandInBookRequest {
+    int32 book_id = 1;
+}
+
+message HandInBooksResponse {
+    Book book = 1;
+}
 // Book related - finished
 
 service StudentService {
@@ -95,4 +127,8 @@ service StudentService {
     rpc GetEnrolledCourses(GetEnrolledCoursesRequest) returns (GetEnrolledCoursesResponse ){};
 
     rpc GetBorrowedBooks(GetBorrowedBooksRequest) returns (GetBorrowedBooksResponse){};
+
+    rpc BorrowBook(BorrowBookRequest) returns (BorrowBookResponse){};
+
+    rpc EnrollCourse(EnrollCourseRequest) returns (EnrollCourseResponse){};
 }
