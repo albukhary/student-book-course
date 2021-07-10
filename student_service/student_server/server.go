@@ -25,15 +25,15 @@ type Student struct {
 }
 
 type Course struct {
-	course_id  int32  `db:"course_id"`
-	instructor string `db:"instructor"`
-	title      string `db:"title"`
+	CourseId   int32  `db:"course_id"`
+	Instructor string `db:"instructor"`
+	Title      string `db:"title"`
 }
 
 type Book struct {
-	book_id int32  `db:"book_id"`
-	title   string `db:"title"`
-	author  string `db:"author"`
+	BookId int32  `db:"book_id"`
+	Title  string `db:"title"`
+	Author string `db:"author"`
 }
 
 // Declare pointer variable to database
@@ -112,15 +112,9 @@ func (*server) GetAllStudents(ctx context.Context, req *empty.Empty) (*pb.GetAll
 	fmt.Println(students)
 
 	var messageStudents []*pb.Student
-	var messageStudent pb.Student
 
 	//traversy the query results to write all tehir content to the proto message
 	for _, student := range students {
-
-		messageStudent.Id = int32(student.ID)
-		messageStudent.FirstName = student.FirstName
-		messageStudent.LastName = student.LastName
-		messageStudent.Email = student.Email
 
 		messageStudents = append(messageStudents, &pb.Student{
 			Id:        int32(student.ID),
@@ -135,12 +129,8 @@ func (*server) GetAllStudents(ctx context.Context, req *empty.Empty) (*pb.GetAll
 		Students: messageStudents,
 	}
 
-	fmt.Println("****************************")
-	fmt.Println("Index : ", messageStudents[0])
-	fmt.Println("****************************")
-
 	// print prepared response for debugging
-	fmt.Println(res.Students)
+	//	fmt.Println(res.Students)
 	return res, nil
 }
 
@@ -211,7 +201,6 @@ func (*server) GetEnrolledCourses(ctx context.Context, req *pb.GetEnrolledCourse
 	}
 
 	var messageCourses []*pb.Course
-	var messageCourse pb.Course
 
 	for _, course_id := range course_ids {
 
@@ -221,11 +210,11 @@ func (*server) GetEnrolledCourses(ctx context.Context, req *pb.GetEnrolledCourse
 			log.Fatal(err)
 		}
 
-		messageCourse.CourseId = course.course_id
-		messageCourse.Instructor = course.instructor
-		messageCourse.Title = course.title
-
-		messageCourses = append(messageCourses, &messageCourse)
+		messageCourses = append(messageCourses, &pb.Course{
+			CourseId:   course.CourseId,
+			Instructor: course.Instructor,
+			Title:      course.Title,
+		})
 
 	}
 
@@ -240,35 +229,38 @@ func (*server) GetEnrolledCourses(ctx context.Context, req *pb.GetEnrolledCourse
 func (*server) GetBorrowedBooks(ctx context.Context, req *pb.GetBorrowedBooksRequest) (*pb.GetBorrowedBooksResponse, error) {
 	var student Student
 
-	var book_ids []int
-
 	var book Book
+
+	var book_ids []int
 
 	student.ID = int(req.StudentId)
 
 	// Use db.Select() to write all the rows in a slice
-	err := db.Select(&book_ids, "SELECT book_id FROM student_book WHERE student_id = $1", student.ID)
+	query := fmt.Sprintf("SELECT book_id FROM student_book WHERE student_id=%v", student.ID)
+	err := db.Select(&book_ids, query)
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	fmt.Println("****************************")
+	fmt.Println("Student_Book s:", book_ids)
+	fmt.Println("****************************")
+
 	var messageBooks []*pb.Book
-	var messageBook pb.Book
 
 	for _, book_id := range book_ids {
 
-		// Use db.Select() to write all the rows in a slice
+		// Use db.Get() to write all the rows in a slice
 		err := db.Get(&book, "SELECT * FROM book WHERE book_id = $1", book_id)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		messageBook.Id = book.book_id
-		messageBook.Title = book.title
-		messageBook.Author = book.author
-
-		messageBooks = append(messageBooks, &messageBook)
-
+		messageBooks = append(messageBooks, &pb.Book{
+			Id:     book.BookId,
+			Title:  book.Title,
+			Author: book.Author,
+		})
 	}
 
 	// generate gRPC response

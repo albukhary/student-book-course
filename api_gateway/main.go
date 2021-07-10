@@ -74,6 +74,7 @@ func setupRoutes(app *fiber.App) {
 }
 
 // createStudent godoc
+// @tags Student Related
 // @Summary Creates a student record with user input details and writes into database
 // @Accept json
 // @Produce json
@@ -115,6 +116,7 @@ func createStudent(c *fiber.Ctx) error {
 }
 
 // getStudents godoc
+// @tags Student Related
 // @Summary Retrieves the list of all students
 // @Produce json
 // @Success 200 {object} []Student
@@ -152,6 +154,7 @@ func getStudents(c *fiber.Ctx) error {
 }
 
 // getStudent godoc
+// @tags Student Related
 // @Summary Retrieves user based on given ID
 // @Produce json
 // @Param id path integer true "Student ID"
@@ -190,6 +193,7 @@ func getStudent(c *fiber.Ctx) error {
 }
 
 // deleteStudent godoc
+// @tags Student Related
 // @Summary Deletes a student with the specified ID
 // @Produce json
 // @Param id path integer true "Student ID"
@@ -226,6 +230,7 @@ func deleteStudent(c *fiber.Ctx) error {
 }
 
 // updateStudent godoc
+// @tags Student Related
 // @Summary Updates a student record with user input details and writes into database
 // @Accept json
 // @Produce json
@@ -263,7 +268,8 @@ func updateStudent(c *fiber.Ctx) error {
 }
 
 // getEnrolledCourses godoc
-// @Summary Retrieves courses of astudent based on given ID
+// @tags Student Related
+// @Summary Retrieves the enrolled courses of the student based on given ID
 // @Produce json
 // @Param id path integer true "Student ID"
 // @Success 200 {object} []Course
@@ -306,7 +312,8 @@ func getEnrolledCourses(c *fiber.Ctx) error {
 }
 
 // getBorrowedBooks godoc
-// @Summary Retrieves borrowed books of astudent based on given ID
+// @tags Student Related
+// @Summary Retrieves the borrowed books of the student based on given ID
 // @Produce json
 // @Param id path integer true "Student ID"
 // @Success 200 {object} []Book

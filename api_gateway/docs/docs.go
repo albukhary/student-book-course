@@ -29,7 +29,10 @@ var doc = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Retrieves borrowed books of astudent based on given ID",
+                "tags": [
+                    "Student Related"
+                ],
+                "summary": "Retrieves the borrowed books of the student based on given ID",
                 "parameters": [
                     {
                         "type": "integer",
@@ -57,7 +60,10 @@ var doc = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Retrieves courses of astudent based on given ID",
+                "tags": [
+                    "Student Related"
+                ],
+                "summary": "Retrieves the enrolled courses of the student based on given ID",
                 "parameters": [
                     {
                         "type": "integer",
@@ -88,6 +94,9 @@ var doc = `{
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "Student Related"
+                ],
                 "summary": "Creates a student record with user input details and writes into database",
                 "parameters": [
                     {
@@ -115,6 +124,9 @@ var doc = `{
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "Student Related"
+                ],
                 "summary": "Deletes a student with the specified ID",
                 "parameters": [
                     {
@@ -139,6 +151,9 @@ var doc = `{
             "get": {
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "Student Related"
                 ],
                 "summary": "Retrieves user based on given ID",
                 "parameters": [
@@ -165,6 +180,9 @@ var doc = `{
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "Student Related"
+                ],
                 "summary": "Retrieves the list of all students",
                 "responses": {
                     "200": {
@@ -186,6 +204,9 @@ var doc = `{
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "Student Related"
                 ],
                 "summary": "Updates a student record with user input details and writes into database",
                 "parameters": [
@@ -217,7 +238,7 @@ var doc = `{
                 "author": {
                     "type": "string"
                 },
-                "id": {
+                "bookId": {
                     "type": "integer"
                 },
                 "title": {
@@ -228,7 +249,7 @@ var doc = `{
         "main.Course": {
             "type": "object",
             "properties": {
-                "id": {
+                "courseId": {
                     "type": "integer"
                 },
                 "instructor": {

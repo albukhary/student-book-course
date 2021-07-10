@@ -3,14 +3,14 @@ definitions:
     properties:
       author:
         type: string
-      id:
+      bookId:
         type: integer
       title:
         type: string
     type: object
   main.Course:
     properties:
-      id:
+      courseId:
         type: integer
       instructor:
         type: string
@@ -48,7 +48,9 @@ paths:
             items:
               $ref: '#/definitions/main.Book'
             type: array
-      summary: Retrieves borrowed books of astudent based on given ID
+      summary: Retrieves the borrowed books of the student based on given ID
+      tags:
+      - Student Related
   /courses/student/{id}:
     get:
       parameters:
@@ -66,7 +68,9 @@ paths:
             items:
               $ref: '#/definitions/main.Course'
             type: array
-      summary: Retrieves courses of astudent based on given ID
+      summary: Retrieves the enrolled courses of the student based on given ID
+      tags:
+      - Student Related
   /create/student:
     post:
       consumes:
@@ -86,6 +90,8 @@ paths:
           schema:
             $ref: '#/definitions/main.Student'
       summary: Creates a student record with user input details and writes into database
+      tags:
+      - Student Related
   /delete/student/{id}:
     delete:
       parameters:
@@ -102,6 +108,8 @@ paths:
           schema:
             $ref: '#/definitions/main.Student'
       summary: Deletes a student with the specified ID
+      tags:
+      - Student Related
   /student/{id}:
     get:
       parameters:
@@ -118,6 +126,8 @@ paths:
           schema:
             $ref: '#/definitions/main.Student'
       summary: Retrieves user based on given ID
+      tags:
+      - Student Related
   /students:
     get:
       produces:
@@ -130,6 +140,8 @@ paths:
               $ref: '#/definitions/main.Student'
             type: array
       summary: Retrieves the list of all students
+      tags:
+      - Student Related
   /update/student/{id}:
     put:
       consumes:
@@ -149,4 +161,6 @@ paths:
           schema:
             $ref: '#/definitions/main.Student'
       summary: Updates a student record with user input details and writes into database
+      tags:
+      - Student Related
 swagger: "2.0"
