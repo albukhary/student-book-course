@@ -24,6 +24,62 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/books/student/{id}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Retrieves borrowed books of astudent based on given ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Student ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/main.Book"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/courses/student/{id}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Retrieves courses of astudent based on given ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Student ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/main.Course"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/create/student": {
             "post": {
                 "consumes": [
@@ -155,6 +211,34 @@ var doc = `{
         }
     },
     "definitions": {
+        "main.Book": {
+            "type": "object",
+            "properties": {
+                "author": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.Course": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "instructor": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
         "main.Student": {
             "type": "object",
             "properties": {

@@ -26,13 +26,13 @@ type Student struct {
 }
 
 type Course struct {
-	ID         int    `db:"course_id`
+	CourseId   int    `db:"course_id`
 	Instructor string `db:"instructor"`
 	Title      string `db:"title"`
 }
 
 type Book struct {
-	ID     int    `db:"book_id`
+	BookId int    `db:"book_id`
 	Title  string `db:"title"`
 	Author string `db:"author"`
 }
@@ -293,7 +293,7 @@ func getEnrolledCourses(c *fiber.Ctx) error {
 	// iterate through courses and write them to courses array struct
 	for _, messageCourse := range res.Courses {
 
-		course.ID = int(messageCourse.CourseId)
+		course.CourseId = int(messageCourse.CourseId)
 		course.Instructor = messageCourse.Instructor
 		course.Title = messageCourse.Title
 
@@ -336,7 +336,7 @@ func getBorrowedBooks(c *fiber.Ctx) error {
 	// iterate through books and write them to books array struct
 	for _, messageBook := range res.Books {
 
-		book.ID = int(messageBook.Id)
+		book.BookId = int(messageBook.Id)
 		book.Title = messageBook.Title
 		book.Author = messageBook.Author
 

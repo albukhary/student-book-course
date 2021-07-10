@@ -41,8 +41,8 @@ var db *sqlx.DB
 var err error
 
 const (
-	insertStudent  = `INSERT INTO student (id, first_name, last_name, email) VALUES ($1, $2, $3, $4);`
-	updateStudent  = `UPDATE student SET name=$1, email=$2, age=$3 WHERE id=$4;`
+	insertStudent  = `INSERT INTO student (student_id, first_name, last_name, email) VALUES ($1, $2, $3, $4);`
+	updateStudent  = `UPDATE student SET first_name=$1, email=$2, age=$3 WHERE id=$4;`
 	deleteQuery    = `DELETE FROM student WHERE id=$1`
 	courseIDsQuery = `SELECT * FROM student_course WHERE student_id = $1`
 )
@@ -83,7 +83,7 @@ func (*server) GetStudent(ctx context.Context, req *pb.GetStudentRequest) (*pb.G
 
 	studentID := req.GetId()
 
-	err = db.Get(&student, "SELECT id, first_name, last_name, email FROM student WHERE id=$1", studentID)
+	err = db.Get(&student, "SELECT student_id, first_name, last_name, email FROM student WHERE student_id=$1", studentID)
 	if err != nil {
 		log.Fatal(err)
 	}
