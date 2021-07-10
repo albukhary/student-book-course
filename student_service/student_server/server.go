@@ -42,9 +42,9 @@ var err error
 
 const (
 	insertStudent  = `INSERT INTO student (student_id, first_name, last_name, email) VALUES ($1, $2, $3, $4);`
-	updateStudent  = `UPDATE student SET first_name=$1, email=$2, age=$3 WHERE id=$4;`
-	deleteQuery    = `DELETE FROM student WHERE id=$1`
-	courseIDsQuery = `SELECT * FROM student_course WHERE student_id = $1`
+	updateStudent  = `UPDATE student SET first_name=$1, last_name=$2, email=$3 WHERE student_id=$4;`
+	deleteQuery    = `DELETE FROM student WHERE student_id=$1`
+	courseIDsQuery = `SELECT course_id FROM student_course WHERE student_id = $1`
 )
 
 type server struct {
@@ -108,6 +108,8 @@ func (*server) GetAllStudents(ctx context.Context, req *empty.Empty) (*pb.GetAll
 	if err != nil {
 		log.Fatal(err)
 	}
+	//print students read from database
+	fmt.Println(students)
 
 	var messageStudents []*pb.Student
 	var messageStudent pb.Student
@@ -120,7 +122,12 @@ func (*server) GetAllStudents(ctx context.Context, req *empty.Empty) (*pb.GetAll
 		messageStudent.LastName = student.LastName
 		messageStudent.Email = student.Email
 
-		messageStudents = append(messageStudents, &messageStudent)
+		messageStudents = append(messageStudents, &pb.Student{
+			Id:        int32(student.ID),
+			FirstName: student.FirstName,
+			LastName:  student.LastName,
+			Email:     student.Email,
+		})
 	}
 
 	// generate gRPC response
@@ -128,6 +135,12 @@ func (*server) GetAllStudents(ctx context.Context, req *empty.Empty) (*pb.GetAll
 		Students: messageStudents,
 	}
 
+	fmt.Println("****************************")
+	fmt.Println("Index : ", messageStudents[0])
+	fmt.Println("****************************")
+
+	// print prepared response for debugging
+	fmt.Println(res.Students)
 	return res, nil
 }
 
@@ -141,7 +154,7 @@ func (*server) UpdateStudent(ctx context.Context, req *pb.UpdateStudentRequest) 
 	student.Email = req.Student.GetEmail()
 
 	// Insert the student into the database
-	db.MustExec(updateStudent, student.ID, student.FirstName, student.LastName, student.Email)
+	db.MustExec(updateStudent, student.FirstName, student.LastName, student.Email, student.ID)
 
 	res := &pb.UpdateStudentResponse{
 		Student: &pb.Student{
@@ -161,7 +174,7 @@ func (*server) DeleteStudent(ctx context.Context, req *pb.DeleteStudentRequest) 
 	student.ID = int(req.Id)
 
 	// find the requested student from database
-	err = db.Get(&student, "SELECT id, name, email, age FROM student WHERE id=$1", student.ID)
+	err = db.Get(&student, "SELECT student_id, first_name, last_name, email FROM student WHERE student_id=$1", student.ID)
 	if err != nil {
 		fmt.Println("There is no student with such ID")
 		log.Fatal(err)

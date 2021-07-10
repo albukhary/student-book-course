@@ -129,19 +129,22 @@ func getStudents(c *fiber.Ctx) error {
 		log.Fatalf("Error getting all students via gRPC. Error : %v\n", err)
 	}
 
+	// print response for debugging
+	fmt.Println(res.Students)
+
 	messageStudents := res.Students
 
-	for idx, messageStudent := range messageStudents {
+	for _, messageStudent := range messageStudents {
 
 		// traverse through the message Student list
-		// and write to oour own Student struct
+		// and write to our own Student struct
 		student.ID = int(messageStudent.Id)
 		student.FirstName = messageStudent.FirstName
 		student.LastName = messageStudent.LastName
 		student.Email = messageStudent.Email
 
 		// append to the list of all students
-		students[idx] = student
+		students = append(students, student)
 	}
 
 	//return the slice of students to http

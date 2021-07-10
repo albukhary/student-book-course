@@ -24,7 +24,7 @@ ALTER TABLE student_book ADD CONSTRAINT unique_borrow UNIQUE(student_id, book_id
 
 CREATE TABLE course (
     course_id BIGSERIAL NOT NULL PRIMARY KEY,
-    insructor VARCHAR(200) NOT NULL,
+    instructor VARCHAR(200) NOT NULL,
     title VARCHAR(200) NOT NULL
 );
 
