@@ -17,6 +17,13 @@ definitions:
       title:
         type: string
     type: object
+  main.Ids:
+    properties:
+      book_id:
+        type: integer
+      student_id:
+        type: integer
+    type: object
   main.Student:
     properties:
       email:
@@ -50,7 +57,7 @@ paths:
             type: array
       summary: Retrieves the borrowed books of the student based on given ID
       tags:
-      - Student Related
+      - Book Related
   /courses/student/{id}:
     get:
       parameters:
@@ -70,7 +77,7 @@ paths:
             type: array
       summary: Retrieves the enrolled courses of the student based on given ID
       tags:
-      - Student Related
+      - Course Related
   /create/student:
     post:
       consumes:
@@ -128,6 +135,27 @@ paths:
       summary: Retrieves user based on given ID
       tags:
       - Student Related
+  /student/borrow/book:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Book and Student IDs
+        in: body
+        name: student_book_ids
+        required: true
+        schema:
+          $ref: '#/definitions/main.Ids'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.Book'
+      summary: Borrows the book of a given Id for a given student ID
+      tags:
+      - Book Related
   /students:
     get:
       produces:

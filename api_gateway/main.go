@@ -37,6 +37,11 @@ type Book struct {
 	Author string `db:"author"`
 }
 
+type Ids struct {
+	Book_id    int32
+	Student_id int32
+}
+
 var studentServiceClient studentpb.StudentServiceClient
 
 func main() {
@@ -69,6 +74,7 @@ func setupRoutes(app *fiber.App) {
 	app.Get("/courses/student/:id", getEnrolledCourses)
 	app.Get("/books/student/:id", getBorrowedBooks)
 	app.Post("/create/student", createStudent)
+	app.Post("/student/borrow/book", borrowBook)
 	app.Delete("/delete/student/:id", deleteStudent)
 	app.Put("update/student/:id", updateStudent)
 }
@@ -268,7 +274,7 @@ func updateStudent(c *fiber.Ctx) error {
 }
 
 // getEnrolledCourses godoc
-// @tags Student Related
+// @tags Course Related
 // @Summary Retrieves the enrolled courses of the student based on given ID
 // @Produce json
 // @Param id path integer true "Student ID"
@@ -312,7 +318,7 @@ func getEnrolledCourses(c *fiber.Ctx) error {
 }
 
 // getBorrowedBooks godoc
-// @tags Student Related
+// @tags Book Related
 // @Summary Retrieves the borrowed books of the student based on given ID
 // @Produce json
 // @Param id path integer true "Student ID"
@@ -353,4 +359,38 @@ func getBorrowedBooks(c *fiber.Ctx) error {
 
 	// reutrn books to the browser as JSON
 	return c.JSON(books)
+}
+
+// borrowBook godoc
+// @tags Book Related
+// @Summary Borrows the book of a given Id for a given student ID
+// @Accept  json
+// @Produce json
+// @Param student_book_ids body Ids true "Book and Student IDs"
+// @Success 200 {object} Book
+// @Router /student/borrow/book [POST]
+func borrowBook(c *fiber.Ctx) error {
+
+	var ids Ids
+	c.BodyParser(&ids)
+
+	// Prepare a gRPC request
+	req := &studentpb.BorrowBookRequest{
+		StudentId: ids.Student_id,
+		BookId:    ids.Book_id,
+	}
+
+	// Make a CAll
+	res, err := studentServiceClient.BorrowBook(context.Background(), req)
+	if err != nil {
+		log.Fatalf("Error from gRPC borrow book call.\n %v\n", err)
+	}
+
+	var book Book
+
+	book.BookId = int(res.Book.Id)
+	book.Title = res.Book.Title
+	book.Author = res.Book.Author
+
+	return c.JSON(book)
 }

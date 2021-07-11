@@ -250,7 +250,7 @@ func (*server) GetBorrowedBooks(ctx context.Context, req *pb.GetBorrowedBooksReq
 
 	for _, book_id := range book_ids {
 
-		// Use db.Get() to write all the rows in a slice
+		// Use db.Get() to write one rows
 		err := db.Get(&book, "SELECT * FROM book WHERE book_id = $1", book_id)
 		if err != nil {
 			log.Fatal(err)
@@ -271,6 +271,34 @@ func (*server) GetBorrowedBooks(ctx context.Context, req *pb.GetBorrowedBooksReq
 	return res, nil
 }
 
+func (*server) BorrowBook(ctx context.Context, req *pb.BorrowBookRequest) (*pb.BorrowBookResponse, error) {
+	var book Book
+
+	studentId := req.StudentId
+
+	book.BookId = req.BookId
+
+	_, err := db.Exec("INSERT INTO student_book (student_id, book_id) VALUES ($1, $2)", studentId, book.BookId)
+	if err != nil {
+		log.Printf("There is no student or book with such Id.\n Error : %v\n", err)
+		res := &pb.BorrowBookResponse{}
+		return res, nil
+	}
+
+	//  Retrieve the book details and make RPC response
+	db.Get(&book, "SELECT * FROM book WHERE book_id =$1", book.BookId)
+
+	// Prepare a RPC response which sends newly Borrowed book details
+	res := &pb.BorrowBookResponse{
+		Book: &pb.Book{
+			Id:     book.BookId,
+			Title:  book.Title,
+			Author: book.Author,
+		},
+	}
+
+	return res, nil
+}
 func main() {
 
 	setUpDatabase()

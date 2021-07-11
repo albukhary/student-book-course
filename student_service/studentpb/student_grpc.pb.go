@@ -26,6 +26,8 @@ type StudentServiceClient interface {
 	GetAllStudents(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*GetAllStudentsResponse, error)
 	GetEnrolledCourses(ctx context.Context, in *GetEnrolledCoursesRequest, opts ...grpc.CallOption) (*GetEnrolledCoursesResponse, error)
 	GetBorrowedBooks(ctx context.Context, in *GetBorrowedBooksRequest, opts ...grpc.CallOption) (*GetBorrowedBooksResponse, error)
+	BorrowBook(ctx context.Context, in *BorrowBookRequest, opts ...grpc.CallOption) (*BorrowBookResponse, error)
+	EnrollCourse(ctx context.Context, in *EnrollCourseRequest, opts ...grpc.CallOption) (*EnrollCourseResponse, error)
 }
 
 type studentServiceClient struct {
@@ -99,6 +101,24 @@ func (c *studentServiceClient) GetBorrowedBooks(ctx context.Context, in *GetBorr
 	return out, nil
 }
 
+func (c *studentServiceClient) BorrowBook(ctx context.Context, in *BorrowBookRequest, opts ...grpc.CallOption) (*BorrowBookResponse, error) {
+	out := new(BorrowBookResponse)
+	err := c.cc.Invoke(ctx, "/student.StudentService/BorrowBook", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *studentServiceClient) EnrollCourse(ctx context.Context, in *EnrollCourseRequest, opts ...grpc.CallOption) (*EnrollCourseResponse, error) {
+	out := new(EnrollCourseResponse)
+	err := c.cc.Invoke(ctx, "/student.StudentService/EnrollCourse", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // StudentServiceServer is the server API for StudentService service.
 // All implementations must embed UnimplementedStudentServiceServer
 // for forward compatibility
@@ -110,6 +130,8 @@ type StudentServiceServer interface {
 	GetAllStudents(context.Context, *empty.Empty) (*GetAllStudentsResponse, error)
 	GetEnrolledCourses(context.Context, *GetEnrolledCoursesRequest) (*GetEnrolledCoursesResponse, error)
 	GetBorrowedBooks(context.Context, *GetBorrowedBooksRequest) (*GetBorrowedBooksResponse, error)
+	BorrowBook(context.Context, *BorrowBookRequest) (*BorrowBookResponse, error)
+	EnrollCourse(context.Context, *EnrollCourseRequest) (*EnrollCourseResponse, error)
 	mustEmbedUnimplementedStudentServiceServer()
 }
 
@@ -137,6 +159,12 @@ func (UnimplementedStudentServiceServer) GetEnrolledCourses(context.Context, *Ge
 }
 func (UnimplementedStudentServiceServer) GetBorrowedBooks(context.Context, *GetBorrowedBooksRequest) (*GetBorrowedBooksResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetBorrowedBooks not implemented")
+}
+func (UnimplementedStudentServiceServer) BorrowBook(context.Context, *BorrowBookRequest) (*BorrowBookResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BorrowBook not implemented")
+}
+func (UnimplementedStudentServiceServer) EnrollCourse(context.Context, *EnrollCourseRequest) (*EnrollCourseResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method EnrollCourse not implemented")
 }
 func (UnimplementedStudentServiceServer) mustEmbedUnimplementedStudentServiceServer() {}
 
@@ -277,6 +305,42 @@ func _StudentService_GetBorrowedBooks_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _StudentService_BorrowBook_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BorrowBookRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StudentServiceServer).BorrowBook(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/student.StudentService/BorrowBook",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StudentServiceServer).BorrowBook(ctx, req.(*BorrowBookRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _StudentService_EnrollCourse_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EnrollCourseRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StudentServiceServer).EnrollCourse(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/student.StudentService/EnrollCourse",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StudentServiceServer).EnrollCourse(ctx, req.(*EnrollCourseRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // StudentService_ServiceDesc is the grpc.ServiceDesc for StudentService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -311,6 +375,14 @@ var StudentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetBorrowedBooks",
 			Handler:    _StudentService_GetBorrowedBooks_Handler,
+		},
+		{
+			MethodName: "BorrowBook",
+			Handler:    _StudentService_BorrowBook_Handler,
+		},
+		{
+			MethodName: "EnrollCourse",
+			Handler:    _StudentService_EnrollCourse_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

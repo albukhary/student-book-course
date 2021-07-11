@@ -30,7 +30,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Student Related"
+                    "Book Related"
                 ],
                 "summary": "Retrieves the borrowed books of the student based on given ID",
                 "parameters": [
@@ -61,7 +61,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Student Related"
+                    "Course Related"
                 ],
                 "summary": "Retrieves the enrolled courses of the student based on given ID",
                 "parameters": [
@@ -142,6 +142,39 @@ var doc = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/main.Student"
+                        }
+                    }
+                }
+            }
+        },
+        "/student/borrow/book": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Book Related"
+                ],
+                "summary": "Borrows the book of a given Id for a given student ID",
+                "parameters": [
+                    {
+                        "description": "Book and Student IDs",
+                        "name": "student_book_ids",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.Ids"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.Book"
                         }
                     }
                 }
@@ -257,6 +290,17 @@ var doc = `{
                 },
                 "title": {
                     "type": "string"
+                }
+            }
+        },
+        "main.Ids": {
+            "type": "object",
+            "properties": {
+                "book_id": {
+                    "type": "integer"
+                },
+                "student_id": {
+                    "type": "integer"
                 }
             }
         },
