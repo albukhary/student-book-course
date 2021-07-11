@@ -37,8 +37,13 @@ type Book struct {
 	Author string `db:"author"`
 }
 
-type Ids struct {
+type Student_Book_Ids struct {
 	Book_id    int32
+	Student_id int32
+}
+
+type Student_Course_Ids struct {
+	Course_id  int32
 	Student_id int32
 }
 
@@ -75,6 +80,7 @@ func setupRoutes(app *fiber.App) {
 	app.Get("/books/student/:id", getBorrowedBooks)
 	app.Post("/create/student", createStudent)
 	app.Post("/student/borrow/book", borrowBook)
+	app.Post("/student/enroll/course", enrollCourse)
 	app.Delete("/delete/student/:id", deleteStudent)
 	app.Put("update/student/:id", updateStudent)
 }
@@ -366,12 +372,12 @@ func getBorrowedBooks(c *fiber.Ctx) error {
 // @Summary Borrows the book of a given Id for a given student ID
 // @Accept  json
 // @Produce json
-// @Param student_book_ids body Ids true "Book and Student IDs"
+// @Param student_book_ids body Student_Book_Ids true "Book and Student IDs"
 // @Success 200 {object} Book
 // @Router /student/borrow/book [POST]
 func borrowBook(c *fiber.Ctx) error {
 
-	var ids Ids
+	var ids Student_Book_Ids
 	c.BodyParser(&ids)
 
 	// Prepare a gRPC request
@@ -393,4 +399,37 @@ func borrowBook(c *fiber.Ctx) error {
 	book.Author = res.Book.Author
 
 	return c.JSON(book)
+}
+
+// enrollCourse godoc
+// @tags Course Related
+// @Summary Enrolls the student of the given Id to the given course ID
+// @Accept  json
+// @Produce json
+// @Param student_course_ids body Student_Course_Ids true "Student and Course IDs"
+// @Success 200 {object} Course
+// @Router /student/enroll/course [POST]
+func enrollCourse(c *fiber.Ctx) error {
+	var ids Student_Course_Ids
+	c.BodyParser(&ids)
+
+	// Prepare a gRPC request
+	req := &studentpb.EnrollCourseRequest{
+		StudentId: ids.Student_id,
+		CourseId:  ids.Course_id,
+	}
+
+	// Make a CAll
+	res, err := studentServiceClient.EnrollCourse(context.Background(), req)
+	if err != nil {
+		log.Fatalf("Error from gRPC enroll course call.\n %v\n", err)
+	}
+
+	var course Course
+
+	course.CourseId = int(res.Course.CourseId)
+	course.Title = res.Course.Title
+	course.Instructor = res.Course.Instructor
+
+	return c.JSON(course)
 }

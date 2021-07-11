@@ -17,13 +17,6 @@ definitions:
       title:
         type: string
     type: object
-  main.Ids:
-    properties:
-      book_id:
-        type: integer
-      student_id:
-        type: integer
-    type: object
   main.Student:
     properties:
       email:
@@ -34,6 +27,20 @@ definitions:
         type: integer
       lastName:
         type: string
+    type: object
+  main.Student_Book_Ids:
+    properties:
+      book_id:
+        type: integer
+      student_id:
+        type: integer
+    type: object
+  main.Student_Course_Ids:
+    properties:
+      course_id:
+        type: integer
+      student_id:
+        type: integer
     type: object
 info:
   contact: {}
@@ -145,7 +152,7 @@ paths:
         name: student_book_ids
         required: true
         schema:
-          $ref: '#/definitions/main.Ids'
+          $ref: '#/definitions/main.Student_Book_Ids'
       produces:
       - application/json
       responses:
@@ -156,6 +163,27 @@ paths:
       summary: Borrows the book of a given Id for a given student ID
       tags:
       - Book Related
+  /student/enroll/course:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Student and Course IDs
+        in: body
+        name: student_course_ids
+        required: true
+        schema:
+          $ref: '#/definitions/main.Student_Course_Ids'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.Course'
+      summary: Enrolls the student of the given Id to the given course ID
+      tags:
+      - Course Related
   /students:
     get:
       produces:

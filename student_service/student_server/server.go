@@ -299,6 +299,36 @@ func (*server) BorrowBook(ctx context.Context, req *pb.BorrowBookRequest) (*pb.B
 
 	return res, nil
 }
+
+func (*server) EnrollCourse(ctx context.Context, req *pb.EnrollCourseRequest) (*pb.EnrollCourseResponse, error) {
+	var course Course
+
+	studentId := req.StudentId
+
+	course.CourseId = req.CourseId
+
+	_, err := db.Exec("INSERT INTO student_course (student_id, course_id) VALUES ($1, $2)", studentId, course.CourseId)
+	if err != nil {
+		log.Printf("There is no student or course with such Id.\n Error : %v\n", err)
+		res := &pb.EnrollCourseResponse{}
+		return res, nil
+	}
+
+	//  Retrieve the book details and make RPC response
+	db.Get(&course, "SELECT * FROM course WHERE course_id =$1", course.CourseId)
+
+	// Prepare a RPC response which sends newly Borrowed book details
+	res := &pb.EnrollCourseResponse{
+		Course: &pb.Course{
+			CourseId:   course.CourseId,
+			Title:      course.Title,
+			Instructor: course.Instructor,
+		},
+	}
+
+	return res, nil
+}
+
 func main() {
 
 	setUpDatabase()

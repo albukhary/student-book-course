@@ -166,7 +166,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/main.Ids"
+                            "$ref": "#/definitions/main.Student_Book_Ids"
                         }
                     }
                 ],
@@ -175,6 +175,39 @@ var doc = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/main.Book"
+                        }
+                    }
+                }
+            }
+        },
+        "/student/enroll/course": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Course Related"
+                ],
+                "summary": "Enrolls the student of the given Id to the given course ID",
+                "parameters": [
+                    {
+                        "description": "Student and Course IDs",
+                        "name": "student_course_ids",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.Student_Course_Ids"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.Course"
                         }
                     }
                 }
@@ -293,17 +326,6 @@ var doc = `{
                 }
             }
         },
-        "main.Ids": {
-            "type": "object",
-            "properties": {
-                "book_id": {
-                    "type": "integer"
-                },
-                "student_id": {
-                    "type": "integer"
-                }
-            }
-        },
         "main.Student": {
             "type": "object",
             "properties": {
@@ -318,6 +340,28 @@ var doc = `{
                 },
                 "lastName": {
                     "type": "string"
+                }
+            }
+        },
+        "main.Student_Book_Ids": {
+            "type": "object",
+            "properties": {
+                "book_id": {
+                    "type": "integer"
+                },
+                "student_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "main.Student_Course_Ids": {
+            "type": "object",
+            "properties": {
+                "course_id": {
+                    "type": "integer"
+                },
+                "student_id": {
+                    "type": "integer"
                 }
             }
         }
