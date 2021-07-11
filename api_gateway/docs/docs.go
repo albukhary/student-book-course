@@ -180,6 +180,39 @@ var doc = `{
                 }
             }
         },
+        "/student/drop/course": {
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Course Related"
+                ],
+                "summary": "Drop the student of the given Id from the given course(ID)",
+                "parameters": [
+                    {
+                        "description": "Student and Course IDs",
+                        "name": "student_course_ids",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.Student_Course_Ids"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.Course"
+                        }
+                    }
+                }
+            }
+        },
         "/student/enroll/course": {
             "post": {
                 "consumes": [
@@ -208,6 +241,39 @@ var doc = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/main.Course"
+                        }
+                    }
+                }
+            }
+        },
+        "/student/handin/book": {
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Book Related"
+                ],
+                "summary": "Hands in the book of a given Id for a given student ID",
+                "parameters": [
+                    {
+                        "description": "Book and Student IDs",
+                        "name": "student_book_ids",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.Student_Book_Ids"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.Book"
                         }
                     }
                 }

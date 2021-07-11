@@ -27,7 +27,9 @@ type StudentServiceClient interface {
 	GetEnrolledCourses(ctx context.Context, in *GetEnrolledCoursesRequest, opts ...grpc.CallOption) (*GetEnrolledCoursesResponse, error)
 	GetBorrowedBooks(ctx context.Context, in *GetBorrowedBooksRequest, opts ...grpc.CallOption) (*GetBorrowedBooksResponse, error)
 	BorrowBook(ctx context.Context, in *BorrowBookRequest, opts ...grpc.CallOption) (*BorrowBookResponse, error)
+	HandInBook(ctx context.Context, in *HandInBookRequest, opts ...grpc.CallOption) (*HandInBooksResponse, error)
 	EnrollCourse(ctx context.Context, in *EnrollCourseRequest, opts ...grpc.CallOption) (*EnrollCourseResponse, error)
+	DropCourse(ctx context.Context, in *DropCourseRequest, opts ...grpc.CallOption) (*DropCourseResponse, error)
 }
 
 type studentServiceClient struct {
@@ -110,9 +112,27 @@ func (c *studentServiceClient) BorrowBook(ctx context.Context, in *BorrowBookReq
 	return out, nil
 }
 
+func (c *studentServiceClient) HandInBook(ctx context.Context, in *HandInBookRequest, opts ...grpc.CallOption) (*HandInBooksResponse, error) {
+	out := new(HandInBooksResponse)
+	err := c.cc.Invoke(ctx, "/student.StudentService/HandInBook", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *studentServiceClient) EnrollCourse(ctx context.Context, in *EnrollCourseRequest, opts ...grpc.CallOption) (*EnrollCourseResponse, error) {
 	out := new(EnrollCourseResponse)
 	err := c.cc.Invoke(ctx, "/student.StudentService/EnrollCourse", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *studentServiceClient) DropCourse(ctx context.Context, in *DropCourseRequest, opts ...grpc.CallOption) (*DropCourseResponse, error) {
+	out := new(DropCourseResponse)
+	err := c.cc.Invoke(ctx, "/student.StudentService/DropCourse", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -131,7 +151,9 @@ type StudentServiceServer interface {
 	GetEnrolledCourses(context.Context, *GetEnrolledCoursesRequest) (*GetEnrolledCoursesResponse, error)
 	GetBorrowedBooks(context.Context, *GetBorrowedBooksRequest) (*GetBorrowedBooksResponse, error)
 	BorrowBook(context.Context, *BorrowBookRequest) (*BorrowBookResponse, error)
+	HandInBook(context.Context, *HandInBookRequest) (*HandInBooksResponse, error)
 	EnrollCourse(context.Context, *EnrollCourseRequest) (*EnrollCourseResponse, error)
+	DropCourse(context.Context, *DropCourseRequest) (*DropCourseResponse, error)
 	mustEmbedUnimplementedStudentServiceServer()
 }
 
@@ -163,8 +185,14 @@ func (UnimplementedStudentServiceServer) GetBorrowedBooks(context.Context, *GetB
 func (UnimplementedStudentServiceServer) BorrowBook(context.Context, *BorrowBookRequest) (*BorrowBookResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BorrowBook not implemented")
 }
+func (UnimplementedStudentServiceServer) HandInBook(context.Context, *HandInBookRequest) (*HandInBooksResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method HandInBook not implemented")
+}
 func (UnimplementedStudentServiceServer) EnrollCourse(context.Context, *EnrollCourseRequest) (*EnrollCourseResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method EnrollCourse not implemented")
+}
+func (UnimplementedStudentServiceServer) DropCourse(context.Context, *DropCourseRequest) (*DropCourseResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DropCourse not implemented")
 }
 func (UnimplementedStudentServiceServer) mustEmbedUnimplementedStudentServiceServer() {}
 
@@ -323,6 +351,24 @@ func _StudentService_BorrowBook_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _StudentService_HandInBook_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HandInBookRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StudentServiceServer).HandInBook(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/student.StudentService/HandInBook",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StudentServiceServer).HandInBook(ctx, req.(*HandInBookRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _StudentService_EnrollCourse_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(EnrollCourseRequest)
 	if err := dec(in); err != nil {
@@ -337,6 +383,24 @@ func _StudentService_EnrollCourse_Handler(srv interface{}, ctx context.Context, 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(StudentServiceServer).EnrollCourse(ctx, req.(*EnrollCourseRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _StudentService_DropCourse_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DropCourseRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StudentServiceServer).DropCourse(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/student.StudentService/DropCourse",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StudentServiceServer).DropCourse(ctx, req.(*DropCourseRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -381,8 +445,16 @@ var StudentService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _StudentService_BorrowBook_Handler,
 		},
 		{
+			MethodName: "HandInBook",
+			Handler:    _StudentService_HandInBook_Handler,
+		},
+		{
 			MethodName: "EnrollCourse",
 			Handler:    _StudentService_EnrollCourse_Handler,
+		},
+		{
+			MethodName: "DropCourse",
+			Handler:    _StudentService_DropCourse_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

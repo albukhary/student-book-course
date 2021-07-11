@@ -134,5 +134,9 @@ service StudentService {
 
     rpc BorrowBook(BorrowBookRequest) returns (BorrowBookResponse){};
 
+    rpc HandInBook(HandInBookRequest) returns (HandInBooksResponse){};
+
     rpc EnrollCourse(EnrollCourseRequest) returns (EnrollCourseResponse){};
+
+    rpc DropCourse(DropCourseRequest) returns (DropCourseResponse){};
 }

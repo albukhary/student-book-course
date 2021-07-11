@@ -82,6 +82,8 @@ func setupRoutes(app *fiber.App) {
 	app.Post("/student/borrow/book", borrowBook)
 	app.Post("/student/enroll/course", enrollCourse)
 	app.Delete("/delete/student/:id", deleteStudent)
+	app.Delete("/student/handin/book", handInBook)
+	app.Delete("/student/drop/course", dropCourse)
 	app.Put("update/student/:id", updateStudent)
 }
 
@@ -142,9 +144,6 @@ func getStudents(c *fiber.Ctx) error {
 	if err != nil {
 		log.Fatalf("Error getting all students via gRPC. Error : %v\n", err)
 	}
-
-	// print response for debugging
-	fmt.Println(res.Students)
 
 	messageStudents := res.Students
 
@@ -401,6 +400,37 @@ func borrowBook(c *fiber.Ctx) error {
 	return c.JSON(book)
 }
 
+// handInBook godoc
+// @tags Book Related
+// @Summary Hands in the book of a given Id for a given student ID
+// @Accept  json
+// @Produce json
+// @Param student_book_ids body Student_Book_Ids true "Book and Student IDs"
+// @Success 200 {object} Book
+// @Router /student/handin/book [DELETE]
+func handInBook(c *fiber.Ctx) error {
+	var student_book_id Student_Book_Ids
+	var book Book
+
+	c.BodyParser(&student_book_id)
+
+	req := &studentpb.HandInBookRequest{
+		StudentId: student_book_id.Student_id,
+		BookId:    student_book_id.Book_id,
+	}
+
+	res, err := studentServiceClient.HandInBook(context.Background(), req)
+	if err != nil {
+		log.Fatalf("Error HandInBook RPC. ERROR : %v\n", err)
+	}
+
+	book.BookId = int(res.Book.Id)
+	book.Title = res.Book.Title
+	book.Author = res.Book.Author
+
+	return c.JSON(book)
+}
+
 // enrollCourse godoc
 // @tags Course Related
 // @Summary Enrolls the student of the given Id to the given course ID
@@ -426,6 +456,37 @@ func enrollCourse(c *fiber.Ctx) error {
 	}
 
 	var course Course
+
+	course.CourseId = int(res.Course.CourseId)
+	course.Title = res.Course.Title
+	course.Instructor = res.Course.Instructor
+
+	return c.JSON(course)
+}
+
+// dropCourse godoc
+// @tags Course Related
+// @Summary Drop the student of the given Id from the given course(ID)
+// @Accept  json
+// @Produce json
+// @Param student_course_ids body Student_Course_Ids true "Student and Course IDs"
+// @Success 200 {object} Course
+// @Router /student/drop/course [DELETE]
+func dropCourse(c *fiber.Ctx) error {
+	var student_course_ids Student_Course_Ids
+	var course Course
+
+	c.BodyParser(&student_course_ids)
+
+	req := &studentpb.DropCourseRequest{
+		StudentId: student_course_ids.Student_id,
+		CourseId:  student_course_ids.Course_id,
+	}
+
+	res, err := studentServiceClient.DropCourse(context.Background(), req)
+	if err != nil {
+		log.Fatalf("Error from gRPC DROP course call.\n %v\n", err)
+	}
 
 	course.CourseId = int(res.Course.CourseId)
 	course.Title = res.Course.Title

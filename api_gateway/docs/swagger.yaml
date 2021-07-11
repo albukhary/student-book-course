@@ -163,6 +163,27 @@ paths:
       summary: Borrows the book of a given Id for a given student ID
       tags:
       - Book Related
+  /student/drop/course:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Student and Course IDs
+        in: body
+        name: student_course_ids
+        required: true
+        schema:
+          $ref: '#/definitions/main.Student_Course_Ids'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.Course'
+      summary: Drop the student of the given Id from the given course(ID)
+      tags:
+      - Course Related
   /student/enroll/course:
     post:
       consumes:
@@ -184,6 +205,27 @@ paths:
       summary: Enrolls the student of the given Id to the given course ID
       tags:
       - Course Related
+  /student/handin/book:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Book and Student IDs
+        in: body
+        name: student_book_ids
+        required: true
+        schema:
+          $ref: '#/definitions/main.Student_Book_Ids'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.Book'
+      summary: Hands in the book of a given Id for a given student ID
+      tags:
+      - Book Related
   /students:
     get:
       produces:

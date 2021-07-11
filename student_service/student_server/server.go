@@ -242,10 +242,6 @@ func (*server) GetBorrowedBooks(ctx context.Context, req *pb.GetBorrowedBooksReq
 		log.Fatal(err)
 	}
 
-	fmt.Println("****************************")
-	fmt.Println("Student_Book s:", book_ids)
-	fmt.Println("****************************")
-
 	var messageBooks []*pb.Book
 
 	for _, book_id := range book_ids {
@@ -300,6 +296,27 @@ func (*server) BorrowBook(ctx context.Context, req *pb.BorrowBookRequest) (*pb.B
 	return res, nil
 }
 
+func (*server) HandInBook(ctx context.Context, req *pb.HandInBookRequest) (*pb.HandInBooksResponse, error) {
+	student_id := req.StudentId
+
+	var book Book
+	book.BookId = req.BookId
+
+	db.MustExec("DELETE FROM student_book WHERE student_id = $1 AND book_id = $2", student_id, book.BookId)
+
+	db.Get(&book, "SELECT * FROM book WHERE book_id=$1", book.BookId)
+
+	res := &pb.HandInBooksResponse{
+		Book: &pb.Book{
+			Id:     book.BookId,
+			Title:  book.Title,
+			Author: book.Author,
+		},
+	}
+
+	return res, nil
+}
+
 func (*server) EnrollCourse(ctx context.Context, req *pb.EnrollCourseRequest) (*pb.EnrollCourseResponse, error) {
 	var course Course
 
@@ -319,6 +336,27 @@ func (*server) EnrollCourse(ctx context.Context, req *pb.EnrollCourseRequest) (*
 
 	// Prepare a RPC response which sends newly Borrowed book details
 	res := &pb.EnrollCourseResponse{
+		Course: &pb.Course{
+			CourseId:   course.CourseId,
+			Title:      course.Title,
+			Instructor: course.Instructor,
+		},
+	}
+
+	return res, nil
+}
+
+func (*server) DropCourse(ctx context.Context, req *pb.DropCourseRequest) (*pb.DropCourseResponse, error) {
+	student_id := req.StudentId
+
+	var course Course
+	course.CourseId = req.CourseId
+
+	db.MustExec("DELETE FROM student_course WHERE student_id = $1 AND course_id = $2", student_id, course.CourseId)
+
+	db.Get(&course, "SELECT * FROM course WHERE course_id=$1", course.CourseId)
+
+	res := &pb.DropCourseResponse{
 		Course: &pb.Course{
 			CourseId:   course.CourseId,
 			Title:      course.Title,
