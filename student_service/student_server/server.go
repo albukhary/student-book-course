@@ -41,7 +41,7 @@ var db *sqlx.DB
 var err error
 
 const (
-	insertStudent  = `INSERT INTO student (student_id, first_name, last_name, email) VALUES ($1, $2, $3, $4);`
+	insertStudent  = `INSERT INTO student (first_name, last_name, email) VALUES ($1, $2, $3);`
 	updateStudent  = `UPDATE student SET first_name=$1, last_name=$2, email=$3 WHERE student_id=$4;`
 	deleteQuery    = `DELETE FROM student WHERE student_id=$1`
 	courseIDsQuery = `SELECT course_id FROM student_course WHERE student_id = $1`
@@ -62,7 +62,9 @@ func (*server) CreateStudent(stx context.Context, req *pb.CreateStudentRequest) 
 	}
 
 	// Execute the query
-	db.MustExec(insertStudent, student.ID, student.FirstName, student.LastName, student.Email)
+	db.MustExec(insertStudent, student.FirstName, student.LastName, student.Email)
+
+	db.Get(&student, "SELECT student_id, first_name, last_name, email FROM student WHERE student_name = $1 AND email = $2", student.ID, student.Email)
 
 	// create a response
 	res := &pb.CreateStudentResponse{

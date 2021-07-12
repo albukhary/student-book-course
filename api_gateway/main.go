@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"strconv"
 
@@ -98,10 +97,7 @@ func setupRoutes(app *fiber.App) {
 func createStudent(c *fiber.Ctx) error {
 	var student Student
 
-	// parse JSON to a student struct
 	c.BodyParser(&student)
-
-	fmt.Println(student)
 
 	// create a request
 	req := &studentpb.CreateStudentRequest{
@@ -119,14 +115,8 @@ func createStudent(c *fiber.Ctx) error {
 		log.Fatalf("Error creating a student from gRPC Student Service Server: %v", err)
 	}
 
-	// writethe details from gRPC response to the struct
-	student.ID = int(res.GetStudent().GetId())
-	student.FirstName = res.GetStudent().GetFirstName()
-	student.LastName = res.GetStudent().GetLastName()
-	student.Email = res.Student.GetEmail()
-
 	// return it as a JSON
-	return c.JSON(student)
+	return c.JSON(res.Student)
 }
 
 // getStudents godoc
