@@ -66,6 +66,39 @@
                 }
             }
         },
+        "/create/book": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Book Related"
+                ],
+                "summary": "Creates a Book record with user input details and writes into database",
+                "parameters": [
+                    {
+                        "description": "Book details",
+                        "name": "details",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.Book"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.Book"
+                        }
+                    }
+                }
+            }
+        },
         "/create/student": {
             "post": {
                 "consumes": [

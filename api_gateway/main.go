@@ -2,10 +2,13 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"strconv"
 
 	studentpb "github.com/albukhary/student-book-course/student_service/studentpb"
+
+	bookpb "github.com/albukhary/student-book-course/book_service/bookpb"
 
 	swagger "github.com/arsmn/fiber-swagger/v2"
 	"github.com/gofiber/fiber/v2"
@@ -47,6 +50,7 @@ type Student_Course_Ids struct {
 }
 
 var studentServiceClient studentpb.StudentServiceClient
+var bookServiceClient bookpb.BookServiceClient
 
 func main() {
 	app := fiber.New()
@@ -56,14 +60,24 @@ func main() {
 	setupRoutes(app)
 
 	// Open an INSECURE client connection(cc) with Student Service Server
-	cc, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
+	studentServiceConnection, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Client Could not connect %v\n", err)
 	}
-	defer cc.Close()
+	defer studentServiceConnection.Close()
 
 	// Register our client to that Dialing connection
-	studentServiceClient = studentpb.NewStudentServiceClient(cc)
+	studentServiceClient = studentpb.NewStudentServiceClient(studentServiceConnection)
+
+	// Open an INSECURE client connection(cc) with Book Service Server
+	bookServiceConnection, err := grpc.Dial("localhost:50052", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("Client Could not connect %v\n", err)
+	}
+	defer bookServiceConnection.Close()
+
+	// Register our client to that Dialing connection
+	bookServiceClient = bookpb.NewBookServiceClient(bookServiceConnection)
 
 	app.Listen(":8084")
 }
@@ -73,17 +87,25 @@ func setupRoutes(app *fiber.App) {
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Assalamu alaykum 👋!")
 	})
+	// Student Related
+	app.Post("/create/student", createStudent)
 	app.Get("/students", getStudents)
 	app.Get("/student/:id", getStudent)
-	app.Get("/courses/student/:id", getEnrolledCourses)
-	app.Get("/books/student/:id", getBorrowedBooks)
-	app.Post("/create/student", createStudent)
-	app.Post("/student/borrow/book", borrowBook)
-	app.Post("/student/enroll/course", enrollCourse)
 	app.Delete("/delete/student/:id", deleteStudent)
-	app.Delete("/student/handin/book", handInBook)
-	app.Delete("/student/drop/course", dropCourse)
 	app.Put("update/student/:id", updateStudent)
+
+	// Student Book related
+	app.Post("/student/borrow/book", borrowBook)
+	app.Get("/books/student/:id", getBorrowedBooks)
+	app.Delete("/student/handin/book", handInBook)
+
+	// Student Course Related
+	app.Post("/student/enroll/course", enrollCourse)
+	app.Delete("/student/drop/course", dropCourse)
+	app.Get("/courses/student/:id", getEnrolledCourses)
+
+	// Book Service related
+	app.Post("create/book", createBook)
 }
 
 // createStudent godoc
@@ -483,4 +505,29 @@ func dropCourse(c *fiber.Ctx) error {
 	course.Instructor = res.Course.Instructor
 
 	return c.JSON(course)
+}
+
+// createBook godoc
+// @tags Book Related
+// @Summary Creates a Book record with user input details and writes into database
+// @Accept json
+// @Produce json
+// @Param details body Book true "Book details"
+// @Success 200 {object} Book
+// @Router /create/book [post]
+func createBook(c *fiber.Ctx) error {
+	var book bookpb.Book
+
+	c.BodyParser(&book)
+
+	req := &bookpb.CreateBookRequest{
+		Book: &book,
+	}
+
+	res, err := bookServiceClient.CreateBook(context.Background(), req)
+	if err != nil {
+		log.Fatalf("Error creating a book from gRPC Book Service Server: %v", err)
+	}
+	fmt.Println(res.GetBook())
+	return c.JSON(res.Book)
 }

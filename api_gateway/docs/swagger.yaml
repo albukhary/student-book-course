@@ -85,6 +85,27 @@ paths:
       summary: Retrieves the enrolled courses of the student based on given ID
       tags:
       - Course Related
+  /create/book:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Book details
+        in: body
+        name: details
+        required: true
+        schema:
+          $ref: '#/definitions/main.Book'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.Book'
+      summary: Creates a Book record with user input details and writes into database
+      tags:
+      - Book Related
   /create/student:
     post:
       consumes:
