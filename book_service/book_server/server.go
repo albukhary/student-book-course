@@ -49,7 +49,7 @@ func (*bookServer) CreateBook(ctx context.Context, req *bookpb.CreateBookRequest
 	book.Author = req.Book.Author
 	book.Title = req.Book.Title
 
-	db.MustExec(insertBook, book.Author, book.Title)
+	db.MustExec(insertBook, book.Title, book.Author)
 
 	// fetch the book details from database
 	err := db.QueryRow(selectBookTitle, book.Author, book.Title).Scan(&book.Id, &book.Title, &book.Author)

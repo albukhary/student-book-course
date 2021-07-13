@@ -19,11 +19,18 @@ import (
 	_ "github.com/albukhary/student-book-course/api_gateway/docs"
 )
 
+// We need these structs for swagger modeling
 type Student struct {
-	ID        int    `db:"student_id"`
-	FirstName string `db:"first_name"`
-	LastName  string `db:"last_name"`
-	Email     string `db:"email"`
+	Id        int
+	FirstName string
+	LastName  string
+	Email     string
+}
+
+type CreateStudentModel struct {
+	FirstName string
+	LastName  string
+	Email     string
 }
 
 type Course struct {
@@ -36,6 +43,11 @@ type Book struct {
 	BookId int    `db:"book_id"`
 	Title  string `db:"title"`
 	Author string `db:"author"`
+}
+
+type CreateBookModel struct {
+	Title  string
+	Author string
 }
 
 type Student_Book_Ids struct {
@@ -113,7 +125,7 @@ func setupRoutes(app *fiber.App) {
 // @Summary Creates a student record with user input details and writes into database
 // @Accept json
 // @Produce json
-// @Param details body Student true "Student details"
+// @Param details body CreateStudentModel true "Student details"
 // @Success 200 {object} Student
 // @Router /create/student [post]
 func createStudent(c *fiber.Ctx) error {
@@ -144,31 +156,13 @@ func createStudent(c *fiber.Ctx) error {
 // @Router /students [get]
 func getStudents(c *fiber.Ctx) error {
 
-	var students []Student
-	var student Student
-
 	res, err := studentServiceClient.GetAllStudents(context.Background(), &emptypb.Empty{})
 	if err != nil {
 		log.Fatalf("Error getting all students via gRPC. Error : %v\n", err)
 	}
 
-	messageStudents := res.Students
-
-	for _, messageStudent := range messageStudents {
-
-		// traverse through the message Student list
-		// and write to our own Student struct
-		student.ID = int(messageStudent.Id)
-		student.FirstName = messageStudent.FirstName
-		student.LastName = messageStudent.LastName
-		student.Email = messageStudent.Email
-
-		// append to the list of all students
-		students = append(students, student)
-	}
-
 	//return the slice of students to http
-	return c.JSON(students)
+	return c.JSON(res.Students)
 }
 
 // getStudent godoc
@@ -180,8 +174,6 @@ func getStudents(c *fiber.Ctx) error {
 // @Router /student/{id} [get]
 func getStudent(c *fiber.Ctx) error {
 	idParam := c.Params("id")
-
-	var student Student
 
 	// ID is initially a string when we get it from JSON
 	// convert into int to use in a query
@@ -200,14 +192,9 @@ func getStudent(c *fiber.Ctx) error {
 	if err != nil {
 		log.Fatalf("Error getting getStudent RPC. Error : %v\n", err)
 	}
-	// Read the details from gRPC response to our own Student struct
-	student.ID = int(res.Student.Id)
-	student.FirstName = res.Student.FirstName
-	student.LastName = res.Student.LastName
-	student.Email = res.Student.Email
 
 	// Return the student to REST as JSON
-	return c.JSON(student)
+	return c.JSON(res.Student)
 }
 
 // deleteStudent godoc
@@ -219,8 +206,6 @@ func getStudent(c *fiber.Ctx) error {
 // @Router /delete/student/{id} [delete]
 func deleteStudent(c *fiber.Ctx) error {
 	idParam := c.Params("id")
-
-	var student Student
 
 	// ID is initially a string when we get it from JSON
 	// convert into int to use in a query
@@ -238,13 +223,7 @@ func deleteStudent(c *fiber.Ctx) error {
 		log.Fatalf("Error getting deleteStudent RPC. Error : %v\n", err)
 	}
 
-	// Read the details from gRPC response to our own Student struct
-	student.ID = int(res.Student.Id)
-	student.FirstName = res.Student.FirstName
-	student.LastName = res.Student.LastName
-	student.Email = res.Student.Email
-
-	return c.JSON(student)
+	return c.JSON(res.Student)
 }
 
 // updateStudent godoc
@@ -256,18 +235,13 @@ func deleteStudent(c *fiber.Ctx) error {
 // @Success 200 {object} Student
 // @Router /update/student/{id} [put]
 func updateStudent(c *fiber.Ctx) error {
-	var student Student
+	var student studentpb.Student
 
 	// parses JSON to struct
 	c.BodyParser(&student)
 
 	req := &studentpb.UpdateStudentRequest{
-		Student: &studentpb.Student{
-			Id:        int32(student.ID),
-			FirstName: student.FirstName,
-			LastName:  student.LastName,
-			Email:     student.Email,
-		},
+		Student: &student,
 	}
 
 	res, err := studentServiceClient.UpdateStudent(context.Background(), req)
@@ -275,14 +249,8 @@ func updateStudent(c *fiber.Ctx) error {
 		log.Fatalf("Error getting updateStudent RPC. Error : %v\n", err)
 	}
 
-	// Read the details from gRPC response to our own Student struct
-	student.ID = int(res.Student.Id)
-	student.FirstName = res.Student.FirstName
-	student.LastName = res.Student.LastName
-	student.Email = res.Student.Email
-
 	// print the newly updated student details
-	return c.JSON(student)
+	return c.JSON(res.Student)
 }
 
 // getEnrolledCourses godoc
@@ -313,20 +281,8 @@ func getEnrolledCourses(c *fiber.Ctx) error {
 		log.Fatalf("Error getting enroller courses RPC. Error : %v\n", err)
 	}
 
-	var courses []Course
-	var course Course
-	// iterate through courses and write them to courses array struct
-	for _, messageCourse := range res.Courses {
-
-		course.CourseId = int(messageCourse.CourseId)
-		course.Instructor = messageCourse.Instructor
-		course.Title = messageCourse.Title
-
-		courses = append(courses, course)
-	}
-
 	// reutrn coursesto the browser as JSON
-	return c.JSON(courses)
+	return c.JSON(res.Courses)
 }
 
 // getBorrowedBooks godoc
@@ -357,20 +313,8 @@ func getBorrowedBooks(c *fiber.Ctx) error {
 		log.Fatalf("Error getting borrowed books RPC. Error : %v\n", err)
 	}
 
-	var books []Book
-	var book Book
-	// iterate through books and write them to books array struct
-	for _, messageBook := range res.Books {
-
-		book.BookId = int(messageBook.Id)
-		book.Title = messageBook.Title
-		book.Author = messageBook.Author
-
-		books = append(books, book)
-	}
-
 	// reutrn books to the browser as JSON
-	return c.JSON(books)
+	return c.JSON(res.Books)
 }
 
 // borrowBook godoc
@@ -398,13 +342,7 @@ func borrowBook(c *fiber.Ctx) error {
 		log.Fatalf("Error from gRPC borrow book call.\n %v\n", err)
 	}
 
-	var book Book
-
-	book.BookId = int(res.Book.Id)
-	book.Title = res.Book.Title
-	book.Author = res.Book.Author
-
-	return c.JSON(book)
+	return c.JSON(res.Book)
 }
 
 // handInBook godoc
@@ -417,7 +355,6 @@ func borrowBook(c *fiber.Ctx) error {
 // @Router /student/handin/book [DELETE]
 func handInBook(c *fiber.Ctx) error {
 	var student_book_id Student_Book_Ids
-	var book Book
 
 	c.BodyParser(&student_book_id)
 
@@ -431,11 +368,7 @@ func handInBook(c *fiber.Ctx) error {
 		log.Fatalf("Error HandInBook RPC. ERROR : %v\n", err)
 	}
 
-	book.BookId = int(res.Book.Id)
-	book.Title = res.Book.Title
-	book.Author = res.Book.Author
-
-	return c.JSON(book)
+	return c.JSON(res.Book)
 }
 
 // enrollCourse godoc
@@ -462,13 +395,7 @@ func enrollCourse(c *fiber.Ctx) error {
 		log.Fatalf("Error from gRPC enroll course call.\n %v\n", err)
 	}
 
-	var course Course
-
-	course.CourseId = int(res.Course.CourseId)
-	course.Title = res.Course.Title
-	course.Instructor = res.Course.Instructor
-
-	return c.JSON(course)
+	return c.JSON(res.Course)
 }
 
 // dropCourse godoc
@@ -481,7 +408,6 @@ func enrollCourse(c *fiber.Ctx) error {
 // @Router /student/drop/course [DELETE]
 func dropCourse(c *fiber.Ctx) error {
 	var student_course_ids Student_Course_Ids
-	var course Course
 
 	c.BodyParser(&student_course_ids)
 
@@ -495,11 +421,7 @@ func dropCourse(c *fiber.Ctx) error {
 		log.Fatalf("Error from gRPC DROP course call.\n %v\n", err)
 	}
 
-	course.CourseId = int(res.Course.CourseId)
-	course.Title = res.Course.Title
-	course.Instructor = res.Course.Instructor
-
-	return c.JSON(course)
+	return c.JSON(res.Course)
 }
 
 // createBook godoc
@@ -507,7 +429,7 @@ func dropCourse(c *fiber.Ctx) error {
 // @Summary Creates a Book record with user input details and writes into database
 // @Accept json
 // @Produce json
-// @Param details body Book true "Book details"
+// @Param details body CreateBookModel true "Book details"
 // @Success 200 {object} Book
 // @Router /create/book [post]
 func createBook(c *fiber.Ctx) error {

@@ -17,6 +17,22 @@ definitions:
       title:
         type: string
     type: object
+  main.CreateBookModel:
+    properties:
+      author:
+        type: string
+      title:
+        type: string
+    type: object
+  main.CreateStudentModel:
+    properties:
+      email:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+    type: object
   main.Student:
     properties:
       email:
@@ -113,7 +129,7 @@ paths:
         name: details
         required: true
         schema:
-          $ref: '#/definitions/main.Book'
+          $ref: '#/definitions/main.CreateBookModel'
       produces:
       - application/json
       responses:
@@ -134,7 +150,7 @@ paths:
         name: details
         required: true
         schema:
-          $ref: '#/definitions/main.Student'
+          $ref: '#/definitions/main.CreateStudentModel'
       produces:
       - application/json
       responses:
