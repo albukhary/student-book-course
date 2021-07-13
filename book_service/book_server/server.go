@@ -13,20 +13,9 @@ import (
 	_ "github.com/lib/pq"
 
 	"google.golang.org/grpc"
+
+	"github.com/golang/protobuf/ptypes/empty"
 )
-
-type Student struct {
-	ID        int    `db:"student_id"`
-	FirstName string `db:"first_name"`
-	LastName  string `db:"last_name"`
-	Email     string `db:"email"`
-}
-
-type Book struct {
-	BookId int32  `db:"book_id"`
-	Title  string `db:"title"`
-	Author string `db:"author"`
-}
 
 // Declare pointer variable to database
 var db *sqlx.DB
@@ -86,6 +75,104 @@ func (*bookServer) GetBook(ctx context.Context, req *bookpb.GetBookRequest) (*bo
 
 	res := &bookpb.GetBookResponse{
 		Book: &book,
+	}
+
+	return res, nil
+}
+
+func (*bookServer) UpdateBook(ctx context.Context, req *bookpb.UpdateBookRequest) (*bookpb.UpdateBookResponse, error) {
+	var book bookpb.Book
+
+	book.Id = req.Book.Id
+	book.Author = req.Book.Author
+	book.Title = req.Book.Title
+
+	err := db.QueryRow("UPDATE TABLE book SET title = $1 author = $2 WHERE book_id = $3", book.Title, book.Author, book.Id).Scan(&book.Id, &book.Title, &book.Author)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	res := &bookpb.UpdateBookResponse{
+		Book: &book,
+	}
+
+	return res, nil
+}
+
+func (*bookServer) DeleteBook(ctx context.Context, req *bookpb.DeleteBookRequest) (*bookpb.DeleteBookResponse, error) {
+	var book bookpb.Book
+
+	book.Id = req.Id
+
+	err := db.QueryRow("SELECT book_id, title, author FROM book WHERE book_id = $1", book.Id).Scan(book.Id, book.Title, book.Author)
+	if err != nil {
+		log.Fatalf("There is no book with such id. %v\n", err)
+	}
+
+	db.MustExec("DELETE FROM book WHERE book_id = $1", book.Id)
+
+	res := &bookpb.DeleteBookResponse{
+		Book: &book,
+	}
+
+	return res, nil
+}
+
+func (*bookServer) GetAllBooks(ctx context.Context, req *empty.Empty) (*bookpb.GetAllBooksResponse, error) {
+
+	rows, err := db.Query("SELECT book_id, title, author FROM book")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var books []*bookpb.Book
+	var book bookpb.Book
+
+	for rows.Next() {
+		err = rows.Scan(&book.Id, &book.Title, &book.Author)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		books = append(books, &bookpb.Book{
+			Id:     book.Id,
+			Title:  book.Title,
+			Author: book.Author,
+		})
+	}
+
+	res := &bookpb.GetAllBooksResponse{
+		Books: books,
+	}
+
+	return res, nil
+}
+
+func (*bookServer) GetBorrowingStudents(ctx context.Context, req *bookpb.GetBorrowingStudentsRequest) (*bookpb.GetBorrowingStudentsResponse, error) {
+	bookId := req.BookId
+
+	var studentIds []int
+	db.Select(&studentIds, "SELECT student_id FROM student_book WHERE book_id = $1", bookId)
+
+	var student bookpb.Student
+	var students []*bookpb.Student
+	for studentId := range studentIds {
+
+		err := db.QueryRow("SELECT student_id, first_name, last_name, email FROM student WHERE student_id = $1", studentId).Scan(&student.Id, &student.FirstName, &student.LastName, &student.Email)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		students = append(students, &bookpb.Student{
+			Id:        student.Id,
+			FirstName: student.FirstName,
+			LastName:  student.LastName,
+			Email:     student.Email,
+		})
+	}
+
+	res := &bookpb.GetBorrowingStudentsResponse{
+		Students: students,
 	}
 
 	return res, nil
