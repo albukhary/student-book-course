@@ -37,8 +37,9 @@ type bookServer struct {
 }
 
 const (
-	insertBook = `INSERT INTO book (title, author) VALUES ($1, $2)`
-	selectBook = `SELECT book_id, title, author FROM book WHERE author = $1 AND title = $2`
+	insertBook      = `INSERT INTO book (title, author) VALUES ($1, $2)`
+	selectBookTitle = `SELECT book_id, title, author FROM book WHERE author = $1 AND title = $2`
+	selectBookId    = `SELECT book_id, title, author FROM book WHERE book_id = $1`
 )
 
 func (*bookServer) CreateBook(ctx context.Context, req *bookpb.CreateBookRequest) (*bookpb.CreateBookResponse, error) {
@@ -50,9 +51,40 @@ func (*bookServer) CreateBook(ctx context.Context, req *bookpb.CreateBookRequest
 
 	db.MustExec(insertBook, book.Author, book.Title)
 
-	db.Get(&book, selectBook, book.Author, book.Title)
+	// fetch the book details from database
+	err := db.QueryRow(selectBookTitle, book.Author, book.Title).Scan(&book.Id, &book.Title, &book.Author)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	res := &bookpb.CreateBookResponse{
+		Book: &book,
+	}
+
+	return res, nil
+}
+
+func (*bookServer) GetBook(ctx context.Context, req *bookpb.GetBookRequest) (*bookpb.GetBookResponse, error) {
+
+	var book bookpb.Book
+
+	book.Id = req.Id
+
+	// fetch the book details from database
+	rows, err := db.Query(selectBookId, book.Id)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// iterate over each row
+	for rows.Next() {
+		err = rows.Scan(&book.Id, &book.Title, &book.Author)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	res := &bookpb.GetBookResponse{
 		Book: &book,
 	}
 

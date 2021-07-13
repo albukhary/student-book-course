@@ -24,13 +24,41 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/books/student/{id}": {
+        "/book/{id}": {
             "get": {
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Book Related"
+                ],
+                "summary": "Gets details of the Book from User input book ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Book ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.Book"
+                        }
+                    }
+                }
+            }
+        },
+        "/books/student/{id}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Student Book Related"
                 ],
                 "summary": "Retrieves the borrowed books of the student based on given ID",
                 "parameters": [
@@ -61,7 +89,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Course Related"
+                    "Student Course Related"
                 ],
                 "summary": "Retrieves the enrolled courses of the student based on given ID",
                 "parameters": [
@@ -189,7 +217,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Book Related"
+                    "Student Book Related"
                 ],
                 "summary": "Borrows the book of a given Id for a given student ID",
                 "parameters": [
@@ -222,7 +250,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Course Related"
+                    "Student Course Related"
                 ],
                 "summary": "Drop the student of the given Id from the given course(ID)",
                 "parameters": [
@@ -255,7 +283,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Course Related"
+                    "Student Course Related"
                 ],
                 "summary": "Enrolls the student of the given Id to the given course ID",
                 "parameters": [
@@ -288,7 +316,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Book Related"
+                    "Student Book Related"
                 ],
                 "summary": "Hands in the book of a given Id for a given student ID",
                 "parameters": [

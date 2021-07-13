@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"strconv"
 
@@ -106,6 +105,7 @@ func setupRoutes(app *fiber.App) {
 
 	// Book Service related
 	app.Post("create/book", createBook)
+	app.Get("/book/:id", getBook)
 }
 
 // createStudent godoc
@@ -291,7 +291,7 @@ func updateStudent(c *fiber.Ctx) error {
 }
 
 // getEnrolledCourses godoc
-// @tags Course Related
+// @tags Student Course Related
 // @Summary Retrieves the enrolled courses of the student based on given ID
 // @Produce json
 // @Param id path integer true "Student ID"
@@ -335,7 +335,7 @@ func getEnrolledCourses(c *fiber.Ctx) error {
 }
 
 // getBorrowedBooks godoc
-// @tags Book Related
+// @tags Student Book Related
 // @Summary Retrieves the borrowed books of the student based on given ID
 // @Produce json
 // @Param id path integer true "Student ID"
@@ -379,7 +379,7 @@ func getBorrowedBooks(c *fiber.Ctx) error {
 }
 
 // borrowBook godoc
-// @tags Book Related
+// @tags Student Book Related
 // @Summary Borrows the book of a given Id for a given student ID
 // @Accept  json
 // @Produce json
@@ -413,7 +413,7 @@ func borrowBook(c *fiber.Ctx) error {
 }
 
 // handInBook godoc
-// @tags Book Related
+// @tags Student Book Related
 // @Summary Hands in the book of a given Id for a given student ID
 // @Accept  json
 // @Produce json
@@ -444,7 +444,7 @@ func handInBook(c *fiber.Ctx) error {
 }
 
 // enrollCourse godoc
-// @tags Course Related
+// @tags Student Course Related
 // @Summary Enrolls the student of the given Id to the given course ID
 // @Accept  json
 // @Produce json
@@ -477,7 +477,7 @@ func enrollCourse(c *fiber.Ctx) error {
 }
 
 // dropCourse godoc
-// @tags Course Related
+// @tags Student Course Related
 // @Summary Drop the student of the given Id from the given course(ID)
 // @Accept  json
 // @Produce json
@@ -528,6 +528,37 @@ func createBook(c *fiber.Ctx) error {
 	if err != nil {
 		log.Fatalf("Error creating a book from gRPC Book Service Server: %v", err)
 	}
-	fmt.Println(res.GetBook())
+
+	return c.JSON(res.Book)
+}
+
+// getBook godoc
+// @tags Book Related
+// @Summary Gets details of the Book from User input book ID
+// @Produce json
+// @Param id path integer true "Book ID"
+// @Success 200 {object} Book
+// @Router /book/{id} [get]
+func getBook(c *fiber.Ctx) error {
+	idParam := c.Params("id")
+
+	// ID is initially a string when we get it from JSON
+	// convert into int to use in a query
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Create gRPC request
+	req := &bookpb.GetBookRequest{
+		Id: int32(id),
+	}
+
+	// Make a call and get gRPC response
+	res, err := bookServiceClient.GetBook(context.Background(), req)
+	if err != nil {
+		log.Fatalf("Error getting getBook RPC. Error : %v\n", err)
+	}
+
 	return c.JSON(res.Book)
 }

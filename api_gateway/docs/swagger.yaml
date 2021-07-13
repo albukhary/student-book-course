@@ -45,6 +45,24 @@ definitions:
 info:
   contact: {}
 paths:
+  /book/{id}:
+    get:
+      parameters:
+      - description: Book ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.Book'
+      summary: Gets details of the Book from User input book ID
+      tags:
+      - Book Related
   /books/student/{id}:
     get:
       parameters:
@@ -64,7 +82,7 @@ paths:
             type: array
       summary: Retrieves the borrowed books of the student based on given ID
       tags:
-      - Book Related
+      - Student Book Related
   /courses/student/{id}:
     get:
       parameters:
@@ -84,7 +102,7 @@ paths:
             type: array
       summary: Retrieves the enrolled courses of the student based on given ID
       tags:
-      - Course Related
+      - Student Course Related
   /create/book:
     post:
       consumes:
@@ -183,7 +201,7 @@ paths:
             $ref: '#/definitions/main.Book'
       summary: Borrows the book of a given Id for a given student ID
       tags:
-      - Book Related
+      - Student Book Related
   /student/drop/course:
     delete:
       consumes:
@@ -204,7 +222,7 @@ paths:
             $ref: '#/definitions/main.Course'
       summary: Drop the student of the given Id from the given course(ID)
       tags:
-      - Course Related
+      - Student Course Related
   /student/enroll/course:
     post:
       consumes:
@@ -225,7 +243,7 @@ paths:
             $ref: '#/definitions/main.Course'
       summary: Enrolls the student of the given Id to the given course ID
       tags:
-      - Course Related
+      - Student Course Related
   /student/handin/book:
     delete:
       consumes:
@@ -246,7 +264,7 @@ paths:
             $ref: '#/definitions/main.Book'
       summary: Hands in the book of a given Id for a given student ID
       tags:
-      - Book Related
+      - Student Book Related
   /students:
     get:
       produces:
