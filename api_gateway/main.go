@@ -117,18 +117,13 @@ func setupRoutes(app *fiber.App) {
 // @Success 200 {object} Student
 // @Router /create/student [post]
 func createStudent(c *fiber.Ctx) error {
-	var student Student
+	var student studentpb.Student
 
 	c.BodyParser(&student)
 
 	// create a request
 	req := &studentpb.CreateStudentRequest{
-		Student: &studentpb.Student{
-			Id:        int32(student.ID),
-			FirstName: student.FirstName,
-			LastName:  student.LastName,
-			Email:     student.Email,
-		},
+		Student: &student,
 	}
 
 	// Invoke gRPC call to the StudentService Server
