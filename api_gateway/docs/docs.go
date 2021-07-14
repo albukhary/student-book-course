@@ -52,6 +52,28 @@ var doc = `{
                 }
             }
         },
+        "/books": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Book Related"
+                ],
+                "summary": "Gets the list of all the books",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/main.Book"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/books/student/{id}": {
             "get": {
                 "produces": [
@@ -175,6 +197,34 @@ var doc = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/main.Student"
+                        }
+                    }
+                }
+            }
+        },
+        "/delete/book/{id}": {
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Book Related"
+                ],
+                "summary": "Deletes the book with the given ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Book ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.Book"
                         }
                     }
                 }
@@ -390,6 +440,70 @@ var doc = `{
                 }
             }
         },
+        "/students/book/{id}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Book Related"
+                ],
+                "summary": "Gets the list of all students who borrowed a particular book",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Book ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/main.Student"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/update/book": {
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Book Related"
+                ],
+                "summary": "Updates the book record with user input details",
+                "parameters": [
+                    {
+                        "description": "Book details",
+                        "name": "details",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.Book"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.Book"
+                        }
+                    }
+                }
+            }
+        },
         "/update/student/{id}": {
             "put": {
                 "consumes": [
@@ -431,7 +545,7 @@ var doc = `{
                 "author": {
                     "type": "string"
                 },
-                "bookId": {
+                "id": {
                     "type": "integer"
                 },
                 "title": {

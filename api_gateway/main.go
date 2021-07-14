@@ -34,15 +34,15 @@ type CreateStudentModel struct {
 }
 
 type Course struct {
-	CourseId   int    `db:"course_id"`
-	Instructor string `db:"instructor"`
-	Title      string `db:"title"`
+	CourseId   int
+	Instructor string
+	Title      string
 }
 
 type Book struct {
-	BookId int    `db:"book_id"`
-	Title  string `db:"title"`
-	Author string `db:"author"`
+	Id     int
+	Title  string
+	Author string
 }
 
 type CreateBookModel struct {
@@ -103,7 +103,7 @@ func setupRoutes(app *fiber.App) {
 	app.Get("/students", getStudents)
 	app.Get("/student/:id", getStudent)
 	app.Delete("/delete/student/:id", deleteStudent)
-	app.Put("update/student/:id", updateStudent)
+	app.Put("/update/student/:id", updateStudent)
 
 	// Student Book related
 	app.Post("/student/borrow/book", borrowBook)
@@ -116,8 +116,12 @@ func setupRoutes(app *fiber.App) {
 	app.Get("/courses/student/:id", getEnrolledCourses)
 
 	// Book Service related
-	app.Post("create/book", createBook)
+	app.Post("/create/book", createBook)
+	app.Put("/update/book", updateBook)
 	app.Get("/book/:id", getBook)
+	app.Get("/books", getAllBooks)
+	app.Get("/students/book/:id", getBorrowingStudents)
+	app.Delete("/delete/book/:id", deleteBook)
 }
 
 // createStudent godoc
@@ -478,4 +482,110 @@ func getBook(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(res.Book)
+}
+
+// getAllBooks godoc
+// @tags Book Related
+// @Summary Gets the list of all the books
+// @Produce json
+// @Success 200 {object} []Book
+// @Router /books [get]
+func getAllBooks(c *fiber.Ctx) error {
+
+	// Make a call and get gRPC response
+	res, err := bookServiceClient.GetAllBooks(context.Background(), &emptypb.Empty{})
+	if err != nil {
+		log.Fatalf("Error getting getAllBooks RPC. Error : %v\n", err)
+	}
+
+	return c.JSON(res.Books)
+}
+
+// updateBook godoc
+// @tags Book Related
+// @Summary Updates the book record with user input details
+// @Accept json
+// @Produce json
+// @Param details body Book true "Book details"
+// @Success 200 {object} Book
+// @Router /update/book [put]
+func updateBook(c *fiber.Ctx) error {
+
+	var book bookpb.Book
+
+	c.BodyParser(&book)
+
+	req := &bookpb.UpdateBookRequest{
+		Book: &book,
+	}
+
+	// Make a call and get gRPC response
+	res, err := bookServiceClient.UpdateBook(context.Background(), req)
+	if err != nil {
+		log.Fatalf("Error updateBook RPC. Error : %v\n", err)
+	}
+
+	return c.JSON(res.Book)
+}
+
+// deleteBook godoc
+// @tags Book Related
+// @Summary Deletes the book with the given ID
+// @Produce json
+// @Param id path integer true "Book ID"
+// @Success 200 {object} Book
+// @Router /delete/book/{id} [delete]
+func deleteBook(c *fiber.Ctx) error {
+	idParam := c.Params("id")
+
+	// ID is initially a string when we get it from JSON
+	// convert into int to use in a query
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Create gRPC request
+	req := &bookpb.DeleteBookRequest{
+		Id: int32(id),
+	}
+
+	// Make a call and get gRPC response
+	res, err := bookServiceClient.DeleteBook(context.Background(), req)
+	if err != nil {
+		log.Fatalf("Error calling deleteBook RPC. Error : %v\n", err)
+	}
+
+	return c.JSON(res.Book)
+}
+
+// getBorrowingStudents godoc
+// @tags Book Related
+// @Summary Gets the list of all students who borrowed a particular book
+// @Produce json
+// @Param id path integer true "Book ID"
+// @Success 200 {object} []Student
+// @Router /students/book/{id} [get]
+func getBorrowingStudents(c *fiber.Ctx) error {
+	idParam := c.Params("id")
+
+	// ID is initially a string when we get it from JSON
+	// convert into int to use in a query
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Create gRPC request
+	req := &bookpb.GetBorrowingStudentsRequest{
+		BookId: int32(id),
+	}
+
+	// Make a call and get gRPC response
+	res, err := bookServiceClient.GetBorrowingStudents(context.Background(), req)
+	if err != nil {
+		log.Fatalf("Error calling getBorrowingStudents RPC.\n Error : %v\n", err)
+	}
+
+	return c.JSON(res.Students)
 }

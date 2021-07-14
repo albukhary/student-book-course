@@ -3,7 +3,7 @@ definitions:
     properties:
       author:
         type: string
-      bookId:
+      id:
         type: integer
       title:
         type: string
@@ -77,6 +77,20 @@ paths:
           schema:
             $ref: '#/definitions/main.Book'
       summary: Gets details of the Book from User input book ID
+      tags:
+      - Book Related
+  /books:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/main.Book'
+            type: array
+      summary: Gets the list of all the books
       tags:
       - Book Related
   /books/student/{id}:
@@ -161,6 +175,24 @@ paths:
       summary: Creates a student record with user input details and writes into database
       tags:
       - Student Related
+  /delete/book/{id}:
+    delete:
+      parameters:
+      - description: Book ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.Book'
+      summary: Deletes the book with the given ID
+      tags:
+      - Book Related
   /delete/student/{id}:
     delete:
       parameters:
@@ -295,6 +327,47 @@ paths:
       summary: Retrieves the list of all students
       tags:
       - Student Related
+  /students/book/{id}:
+    get:
+      parameters:
+      - description: Book ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/main.Student'
+            type: array
+      summary: Gets the list of all students who borrowed a particular book
+      tags:
+      - Book Related
+  /update/book:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Book details
+        in: body
+        name: details
+        required: true
+        schema:
+          $ref: '#/definitions/main.Book'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.Book'
+      summary: Updates the book record with user input details
+      tags:
+      - Book Related
   /update/student/{id}:
     put:
       consumes:

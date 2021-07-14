@@ -87,7 +87,9 @@ func (*bookServer) UpdateBook(ctx context.Context, req *bookpb.UpdateBookRequest
 	book.Author = req.Book.Author
 	book.Title = req.Book.Title
 
-	err := db.QueryRow("UPDATE TABLE book SET title = $1 author = $2 WHERE book_id = $3", book.Title, book.Author, book.Id).Scan(&book.Id, &book.Title, &book.Author)
+	db.MustExec("UPDATE book SET title = $1, author = $2 WHERE book_id = $3", book.Title, book.Author, book.Id)
+
+	err := db.QueryRow("SELECT title, author FROM book WHERE book_id = $1", book.Id).Scan(&book.Title, &book.Author)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -104,7 +106,7 @@ func (*bookServer) DeleteBook(ctx context.Context, req *bookpb.DeleteBookRequest
 
 	book.Id = req.Id
 
-	err := db.QueryRow("SELECT book_id, title, author FROM book WHERE book_id = $1", book.Id).Scan(book.Id, book.Title, book.Author)
+	err := db.QueryRow("SELECT book_id, title, author FROM book WHERE book_id = $1", book.Id).Scan(&book.Id, &book.Title, &book.Author)
 	if err != nil {
 		log.Fatalf("There is no book with such id. %v\n", err)
 	}
@@ -152,15 +154,20 @@ func (*bookServer) GetBorrowingStudents(ctx context.Context, req *bookpb.GetBorr
 	bookId := req.BookId
 
 	var studentIds []int
-	db.Select(&studentIds, "SELECT student_id FROM student_book WHERE book_id = $1", bookId)
+	fmt.Println("Book Id: ", req.BookId)
+	err := db.Select(&studentIds, "SELECT student_id FROM student_book WHERE book_id=$1", bookId)
+	if err != nil {
+		log.Fatalf("There are no students who borrowed this book\n. %v\n", err)
+	}
 
 	var student bookpb.Student
 	var students []*bookpb.Student
-	for studentId := range studentIds {
 
-		err := db.QueryRow("SELECT student_id, first_name, last_name, email FROM student WHERE student_id = $1", studentId).Scan(&student.Id, &student.FirstName, &student.LastName, &student.Email)
+	for _, studentId := range studentIds {
+
+		err := db.QueryRow("SELECT student_id, first_name, last_name, email FROM student WHERE student_id=$1", studentId).Scan(&student.Id, &student.FirstName, &student.LastName, &student.Email)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal("Could not fetch student details from student table\n ", err)
 		}
 
 		students = append(students, &bookpb.Student{
