@@ -8,6 +8,7 @@ import (
 	"os"
 
 	bookpb "github.com/albukhary/student-book-course/book_service/bookpb"
+	studentpb "github.com/albukhary/student-book-course/student_service/studentpb"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -20,6 +21,8 @@ import (
 // Declare pointer variable to database
 var db *sqlx.DB
 var err error
+
+var studentServiceClient studentpb.StudentServiceClient
 
 type bookServer struct {
 	bookpb.UnimplementedBookServiceServer
@@ -160,21 +163,23 @@ func (*bookServer) GetBorrowingStudents(ctx context.Context, req *bookpb.GetBorr
 		log.Fatalf("There are no students who borrowed this book\n. %v\n", err)
 	}
 
-	var student bookpb.Student
 	var students []*bookpb.Student
 
 	for _, studentId := range studentIds {
 
-		err := db.QueryRow("SELECT student_id, first_name, last_name, email FROM student WHERE student_id=$1", studentId).Scan(&student.Id, &student.FirstName, &student.LastName, &student.Email)
+		studentReq := &studentpb.GetStudentRequest{
+			Id: int32(studentId),
+		}
+		studentRes, err := studentServiceClient.GetStudent(context.Background(), studentReq)
 		if err != nil {
-			log.Fatal("Could not fetch student details from student table\n ", err)
+			log.Fatal(err)
 		}
 
 		students = append(students, &bookpb.Student{
-			Id:        student.Id,
-			FirstName: student.FirstName,
-			LastName:  student.LastName,
-			Email:     student.Email,
+			Id:        studentRes.Student.Id,
+			FirstName: studentRes.Student.FirstName,
+			LastName:  studentRes.Student.LastName,
+			Email:     studentRes.Student.Email,
 		})
 	}
 
@@ -187,6 +192,17 @@ func (*bookServer) GetBorrowingStudents(ctx context.Context, req *bookpb.GetBorr
 
 func main() {
 	setUpDatabase()
+
+	/*---------------Establish connection with student service -------------------------*/
+	// Open an INSECURE client connection(cc) with Student Service Server
+	studentServiceConnection, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("Client Could not connect to Student Service %v\n", err)
+	}
+	defer studentServiceConnection.Close()
+
+	// Register our client to that Dialing connection
+	studentServiceClient = studentpb.NewStudentServiceClient(studentServiceConnection)
 
 	// Create a network listener, bind it to port 50051
 	lis, err := net.Listen("tcp", "0.0.0.0:50052")
