@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"net"
 	"os"
@@ -14,12 +15,19 @@ import (
 
 	pb "github.com/albukhary/student-book-course/student_service/studentpb"
 
+	coursepb "github.com/albukhary/student-book-course/course_service/coursepb"
+
+	bookpb "github.com/albukhary/student-book-course/book_service/bookpb"
+
 	"google.golang.org/grpc"
 )
 
 // Declare pointer variable to database
 var db *sqlx.DB
 var err error
+
+var bookServiceClient bookpb.BookServiceClient
+var courseServiceClient coursepb.CourseServiceClient
 
 const (
 	insertStudent  = `INSERT INTO student (first_name, last_name, email) VALUES ($1, $2, $3);`
@@ -150,16 +158,13 @@ func (*server) DeleteStudent(ctx context.Context, req *pb.DeleteStudentRequest) 
 }
 
 func (*server) GetEnrolledCourses(ctx context.Context, req *pb.GetEnrolledCoursesRequest) (*pb.GetEnrolledCoursesResponse, error) {
-	var student pb.Student
 
 	var course_ids []int
 
-	var course pb.Course
-
-	student.Id = req.StudentId
+	studentId := req.StudentId
 
 	// Use db.Select() to write all the rows in a slice
-	err := db.Select(&course_ids, "SELECT course_id FROM student_course WHERE student_id = $1", student.Id)
+	err := db.Select(&course_ids, "SELECT course_id FROM student_course WHERE student_id = $1", studentId)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -168,16 +173,23 @@ func (*server) GetEnrolledCourses(ctx context.Context, req *pb.GetEnrolledCourse
 
 	for _, course_id := range course_ids {
 
-		// fetch the student details from database
-		err := db.QueryRow("SELECT course_id, instructor, title FROM course WHERE course_id = $1", course_id).Scan(&course.CourseId, &course.Instructor, &course.Title)
+		if err == io.EOF {
+			break
+		}
+
+		courseReq := &coursepb.GetCourseRequest{
+			Id: int32(course_id),
+		}
+
+		courseRes, err := courseServiceClient.GetCourse(context.Background(), courseReq)
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		messageCourses = append(messageCourses, &pb.Course{
-			CourseId:   course.CourseId,
-			Instructor: course.Instructor,
-			Title:      course.Title,
+			CourseId:   courseRes.Course.CourseId,
+			Instructor: courseRes.Course.Instructor,
+			Title:      courseRes.Course.Title,
 		})
 
 	}
@@ -191,16 +203,13 @@ func (*server) GetEnrolledCourses(ctx context.Context, req *pb.GetEnrolledCourse
 }
 
 func (*server) GetBorrowedBooks(ctx context.Context, req *pb.GetBorrowedBooksRequest) (*pb.GetBorrowedBooksResponse, error) {
-	var student pb.Student
-
-	var book pb.Book
 
 	var book_ids []int
 
-	student.Id = req.StudentId
+	studentId := req.StudentId
 
 	// Use db.Select() to write all the rows in a slice
-	query := fmt.Sprintf("SELECT book_id FROM student_book WHERE student_id=%v", student.Id)
+	query := fmt.Sprintf("SELECT book_id FROM student_book WHERE student_id=%v", studentId)
 	err := db.Select(&book_ids, query)
 	if err != nil {
 		log.Fatal(err)
@@ -210,16 +219,23 @@ func (*server) GetBorrowedBooks(ctx context.Context, req *pb.GetBorrowedBooksReq
 
 	for _, book_id := range book_ids {
 
-		// fetch the student details from database
-		err := db.QueryRow("SELECT book_id, title, author FROM book WHERE book_id = $1 ", book_id).Scan(&book.Id, &book.Title, &book.Author)
+		if err == io.EOF {
+			break
+		}
+
+		bookReq := &bookpb.GetBookRequest{
+			Id: int32(book_id),
+		}
+
+		bookRes, err := bookServiceClient.GetBook(context.Background(), bookReq)
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		messageBooks = append(messageBooks, &pb.Book{
-			Id:     book.Id,
-			Title:  book.Title,
-			Author: book.Author,
+			Id:     bookRes.Book.Id,
+			Title:  bookRes.Book.Title,
+			Author: bookRes.Book.Author,
 		})
 	}
 
@@ -352,6 +368,31 @@ func main() {
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("Failed to serve %v", err)
 	}
+
+	/*-----------------------------------------------------------------------------------------------*/
+	/*-------------------------------Connection for Book Services------------------------------------*/
+	/*-----------------------------------------------------------------------------------------------*/
+	// Open an INSECURE client connection(cc) with Book Service Server
+	bookServiceConnection, err := grpc.Dial("localhost:50052", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("Client Could not connect %v\n", err)
+	}
+	defer bookServiceConnection.Close()
+
+	// Register our client to that Dialing connection
+	bookServiceClient = bookpb.NewBookServiceClient(bookServiceConnection)
+
+	/*-----------------------------------------------------------------------------------------------*/
+	/*-------------------------------Connection for Course Services------------------------------------*/
+	/*-----------------------------------------------------------------------------------------------*/
+	// Open an INSECURE client connection(cc) with Book Service Server
+	courseServiceConnection, err := grpc.Dial("localhost:50053", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("Client Could not connect %v\n", err)
+	}
+	defer courseServiceConnection.Close()
+
+	courseServiceClient = coursepb.NewCourseServiceClient(courseServiceConnection)
 }
 
 func setUpDatabase() {

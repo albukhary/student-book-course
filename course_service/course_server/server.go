@@ -185,7 +185,7 @@ func main() {
 	// Register our client to that Dialing connection
 	studentServiceClient = studentpb.NewStudentServiceClient(studentServiceConnection)
 
-	// Create a network listener, bind it to port 50051
+	// Create a network listener, bind it to port 50053
 	lis, err := net.Listen("tcp", "0.0.0.0:50053")
 	if err != nil {
 		log.Fatalf("Failed to listen: %v", err)
