@@ -12,6 +12,8 @@ import (
 
 	coursepb "github.com/albukhary/student-book-course/course_service/coursepb"
 
+	studentpb "github.com/albukhary/student-book-course/student_service/studentpb"
+
 	"google.golang.org/grpc"
 
 	"github.com/golang/protobuf/ptypes/empty"
@@ -19,6 +21,8 @@ import (
 
 var db *sqlx.DB
 var err error
+
+var studentServiceClient studentpb.StudentServiceClient
 
 type server struct {
 	coursepb.UnimplementedCourseServiceServer
@@ -143,18 +147,20 @@ func (*server) GetEnrolledStudents(ctx context.Context, req *coursepb.GetEnrolle
 	var students []*coursepb.Student
 	for _, studentId := range studentIds {
 
-		var student coursepb.Student
+		studentReq := &studentpb.GetStudentRequest{
+			Id: int32(studentId),
+		}
 
-		err := db.QueryRow("SELECT first_name, last_name, email FROM student WHERE student_id = $1", studentId).Scan(&student.FirstName, &student.LastName, &student.Email)
+		studentRes, err := studentServiceClient.GetStudent(context.Background(), studentReq)
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		students = append(students, &coursepb.Student{
-			Id:        int32(studentId),
-			FirstName: student.FirstName,
-			LastName:  student.LastName,
-			Email:     student.Email,
+			Id:        studentRes.Student.Id,
+			FirstName: studentRes.Student.FirstName,
+			LastName:  studentRes.Student.LastName,
+			Email:     studentRes.Student.Email,
 		})
 	}
 
@@ -167,6 +173,17 @@ func (*server) GetEnrolledStudents(ctx context.Context, req *coursepb.GetEnrolle
 
 func main() {
 	setUpDatabase()
+
+	/*---------------Establish connection with student service -------------------------*/
+	// Open an INSECURE client connection(cc) with Student Service Server
+	studentServiceConnection, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("Client Could not connect to Student Service %v\n", err)
+	}
+	defer studentServiceConnection.Close()
+
+	// Register our client to that Dialing connection
+	studentServiceClient = studentpb.NewStudentServiceClient(studentServiceConnection)
 
 	// Create a network listener, bind it to port 50051
 	lis, err := net.Listen("tcp", "0.0.0.0:50053")
