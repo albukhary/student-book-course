@@ -10,7 +10,7 @@ definitions:
     type: object
   main.Course:
     properties:
-      courseId:
+      course_id:
         type: integer
       instructor:
         type: string
@@ -20,6 +20,13 @@ definitions:
   main.CreateBookModel:
     properties:
       author:
+        type: string
+      title:
+        type: string
+    type: object
+  main.CreateCourseModel:
+    properties:
+      instructor:
         type: string
       title:
         type: string
@@ -113,6 +120,38 @@ paths:
       summary: Retrieves the borrowed books of the student based on given ID
       tags:
       - Student Book Related
+  /course/{id}:
+    get:
+      parameters:
+      - description: Course ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.Course'
+      summary: Gets details of the Course from User input book ID
+      tags:
+      - Course Related
+  /courses:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/main.Course'
+            type: array
+      summary: Gets the list of all the courses
+      tags:
+      - Course Related
   /courses/student/{id}:
     get:
       parameters:
@@ -154,6 +193,27 @@ paths:
       summary: Creates a Book record with user input details and writes into database
       tags:
       - Book Related
+  /create/course:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Course details
+        in: body
+        name: details
+        required: true
+        schema:
+          $ref: '#/definitions/main.CreateCourseModel'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.Course'
+      summary: Creates a Course record with user input details and writes into database
+      tags:
+      - Course Related
   /create/student:
     post:
       consumes:
@@ -193,6 +253,24 @@ paths:
       summary: Deletes the book with the given ID
       tags:
       - Book Related
+  /delete/course/{id}:
+    delete:
+      parameters:
+      - description: Course ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.Course'
+      summary: Deletes the course with the given ID
+      tags:
+      - Course Related
   /delete/student/{id}:
     delete:
       parameters:
@@ -347,6 +425,26 @@ paths:
       summary: Gets the list of all students who borrowed a particular book
       tags:
       - Book Related
+  /students/course/{id}:
+    get:
+      parameters:
+      - description: Course ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/main.Student'
+            type: array
+      summary: Gets the list of all students who are enrolled to a particular course
+      tags:
+      - Course Related
   /update/book:
     put:
       consumes:
@@ -368,6 +466,27 @@ paths:
       summary: Updates the book record with user input details
       tags:
       - Book Related
+  /update/course:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Course details
+        in: body
+        name: details
+        required: true
+        schema:
+          $ref: '#/definitions/main.Course'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.Course'
+      summary: Updates the course record with user input details
+      tags:
+      - Course Related
   /update/student/{id}:
     put:
       consumes:

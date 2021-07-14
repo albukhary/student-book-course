@@ -8,10 +8,13 @@ import (
 	"os"
 
 	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 
 	coursepb "github.com/albukhary/student-book-course/course_service/coursepb"
 
 	"google.golang.org/grpc"
+
+	"github.com/golang/protobuf/ptypes/empty"
 )
 
 var db *sqlx.DB
@@ -27,7 +30,7 @@ func (*server) CreateCourse(ctx context.Context, req *coursepb.CreateCourseReque
 	course.Instructor = req.Course.Instructor
 	course.Title = req.Course.Title
 
-	db.MustExec("INSERT INTO course (instructor, title) VALUES $1, $2", course.Instructor, course.Title)
+	db.MustExec("INSERT INTO course (instructor, title) VALUES ($1, $2)", course.Instructor, course.Title)
 
 	err := db.QueryRow("SELECT course_id, instructor, title FROM course WHERE instructor = $1 AND title = $2", course.Instructor, course.Title).Scan(&course.CourseId, &course.Instructor, &course.Title)
 	if err != nil {
@@ -36,6 +39,127 @@ func (*server) CreateCourse(ctx context.Context, req *coursepb.CreateCourseReque
 
 	res := &coursepb.CreateCourseResponse{
 		Course: &course,
+	}
+
+	return res, nil
+}
+
+func (*server) GetCourse(ctx context.Context, req *coursepb.GetCourseRequest) (*coursepb.GetCourseResponse, error) {
+	var course coursepb.Course
+
+	course.CourseId = req.Id
+
+	err := db.QueryRow("SELECT instructor, title FROM course WHERE course_id = $1", course.CourseId).Scan(&course.Instructor, &course.Title)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	res := &coursepb.GetCourseResponse{
+		Course: &course,
+	}
+
+	return res, nil
+}
+
+func (*server) UpdateCourse(ctx context.Context, req *coursepb.UpdateCourseRequest) (*coursepb.UpdateCourseResponse, error) {
+	var course coursepb.Course
+
+	course.CourseId = req.Course.CourseId
+	course.Instructor = req.Course.Instructor
+	course.Title = req.Course.Title
+
+	db.MustExec("UPDATE course SET instructor = $1, title = $2 WHERE course_id = $3", course.Instructor, course.Title, course.CourseId)
+
+	err := db.QueryRow("SELECT instructor, title FROM course WHERE course_id = $1", course.CourseId).Scan(&course.Instructor, &course.Title)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	res := &coursepb.UpdateCourseResponse{
+		Course: &course,
+	}
+
+	return res, nil
+}
+
+func (*server) DeleteCourse(ctx context.Context, req *coursepb.DeleteCourseRequest) (*coursepb.DeleteCourseResponse, error) {
+	var course coursepb.Course
+
+	course.CourseId = req.Id
+
+	err := db.QueryRow("SELECT instructor, title FROM course WHERE course_id = $1", course.CourseId).Scan(&course.Instructor, &course.Title)
+	if err != nil {
+		log.Fatal("There is no course such course", err)
+	}
+
+	db.MustExec("DELETE FROM course WHERE course_id = $1", course.CourseId)
+
+	res := &coursepb.DeleteCourseResponse{
+		Course: &course,
+	}
+
+	return res, nil
+}
+
+func (*server) GetAllCourses(ctx context.Context, req *empty.Empty) (*coursepb.GetAllCoursesResponse, error) {
+	var courses []*coursepb.Course
+
+	rows, err := db.Query("SELECT course_id, instructor, title FROM course")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for rows.Next() {
+
+		var course coursepb.Course
+
+		err = rows.Scan(&course.CourseId, &course.Instructor, &course.Title)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		courses = append(courses, &coursepb.Course{
+			CourseId:   course.CourseId,
+			Instructor: course.Instructor,
+			Title:      course.Title,
+		})
+	}
+
+	res := &coursepb.GetAllCoursesResponse{
+		Courses: courses,
+	}
+
+	return res, nil
+}
+
+func (*server) GetEnrolledStudents(ctx context.Context, req *coursepb.GetEnrolledStudentsRequest) (*coursepb.GetEnrolledStudentsResponse, error) {
+
+	courseId := req.CourseId
+
+	var studentIds []int
+
+	db.Select(&studentIds, "SELECT student_id from student_course WHERE course_id = $1", courseId)
+
+	var students []*coursepb.Student
+	for _, studentId := range studentIds {
+
+		var student coursepb.Student
+
+		err := db.QueryRow("SELECT first_name, last_name, email FROM student WHERE student_id = $1", studentId).Scan(&student.FirstName, &student.LastName, &student.Email)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		students = append(students, &coursepb.Student{
+			Id:        int32(studentId),
+			FirstName: student.FirstName,
+			LastName:  student.LastName,
+			Email:     student.Email,
+		})
+	}
+
+	res := &coursepb.GetEnrolledStudentsResponse{
+		Students: students,
 	}
 
 	return res, nil

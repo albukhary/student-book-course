@@ -105,6 +105,56 @@ var doc = `{
                 }
             }
         },
+        "/course/{id}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Course Related"
+                ],
+                "summary": "Gets details of the Course from User input book ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Course ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.Course"
+                        }
+                    }
+                }
+            }
+        },
+        "/courses": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Course Related"
+                ],
+                "summary": "Gets the list of all the courses",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/main.Course"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/courses/student/{id}": {
             "get": {
                 "produces": [
@@ -169,6 +219,39 @@ var doc = `{
                 }
             }
         },
+        "/create/course": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Course Related"
+                ],
+                "summary": "Creates a Course record with user input details and writes into database",
+                "parameters": [
+                    {
+                        "description": "Course details",
+                        "name": "details",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.CreateCourseModel"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.Course"
+                        }
+                    }
+                }
+            }
+        },
         "/create/student": {
             "post": {
                 "consumes": [
@@ -225,6 +308,34 @@ var doc = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/main.Book"
+                        }
+                    }
+                }
+            }
+        },
+        "/delete/course/{id}": {
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Course Related"
+                ],
+                "summary": "Deletes the course with the given ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Course ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.Course"
                         }
                     }
                 }
@@ -471,6 +582,37 @@ var doc = `{
                 }
             }
         },
+        "/students/course/{id}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Course Related"
+                ],
+                "summary": "Gets the list of all students who are enrolled to a particular course",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Course ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/main.Student"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/update/book": {
             "put": {
                 "consumes": [
@@ -499,6 +641,39 @@ var doc = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/main.Book"
+                        }
+                    }
+                }
+            }
+        },
+        "/update/course": {
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Course Related"
+                ],
+                "summary": "Updates the course record with user input details",
+                "parameters": [
+                    {
+                        "description": "Course details",
+                        "name": "details",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.Course"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.Course"
                         }
                     }
                 }
@@ -556,7 +731,7 @@ var doc = `{
         "main.Course": {
             "type": "object",
             "properties": {
-                "courseId": {
+                "course_id": {
                     "type": "integer"
                 },
                 "instructor": {
@@ -571,6 +746,17 @@ var doc = `{
             "type": "object",
             "properties": {
                 "author": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.CreateCourseModel": {
+            "type": "object",
+            "properties": {
+                "instructor": {
                     "type": "string"
                 },
                 "title": {

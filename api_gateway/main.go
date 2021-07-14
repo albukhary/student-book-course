@@ -9,6 +9,8 @@ import (
 
 	bookpb "github.com/albukhary/student-book-course/book_service/bookpb"
 
+	coursepb "github.com/albukhary/student-book-course/course_service/coursepb"
+
 	swagger "github.com/arsmn/fiber-swagger/v2"
 	"github.com/gofiber/fiber/v2"
 
@@ -34,7 +36,7 @@ type CreateStudentModel struct {
 }
 
 type Course struct {
-	CourseId   int
+	Course_id  int32
 	Instructor string
 	Title      string
 }
@@ -50,6 +52,11 @@ type CreateBookModel struct {
 	Author string
 }
 
+type CreateCourseModel struct {
+	Title      string
+	Instructor string
+}
+
 type Student_Book_Ids struct {
 	Book_id    int32
 	Student_id int32
@@ -62,6 +69,7 @@ type Student_Course_Ids struct {
 
 var studentServiceClient studentpb.StudentServiceClient
 var bookServiceClient bookpb.BookServiceClient
+var courseServiceClient coursepb.CourseServiceClient
 
 func main() {
 	app := fiber.New()
@@ -70,6 +78,9 @@ func main() {
 
 	setupRoutes(app)
 
+	/*-----------------------------------------------------------------------------------------------*/
+	/*-------------------------------Connection for Student Services------------------------------------*/
+	/*-----------------------------------------------------------------------------------------------*/
 	// Open an INSECURE client connection(cc) with Student Service Server
 	studentServiceConnection, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
 	if err != nil {
@@ -80,6 +91,9 @@ func main() {
 	// Register our client to that Dialing connection
 	studentServiceClient = studentpb.NewStudentServiceClient(studentServiceConnection)
 
+	/*-----------------------------------------------------------------------------------------------*/
+	/*-------------------------------Connection for Book Services------------------------------------*/
+	/*-----------------------------------------------------------------------------------------------*/
 	// Open an INSECURE client connection(cc) with Book Service Server
 	bookServiceConnection, err := grpc.Dial("localhost:50052", grpc.WithInsecure())
 	if err != nil {
@@ -89,6 +103,18 @@ func main() {
 
 	// Register our client to that Dialing connection
 	bookServiceClient = bookpb.NewBookServiceClient(bookServiceConnection)
+
+	/*-----------------------------------------------------------------------------------------------*/
+	/*-------------------------------Connection for Course Services------------------------------------*/
+	/*-----------------------------------------------------------------------------------------------*/
+	// Open an INSECURE client connection(cc) with Book Service Server
+	courseServiceConnection, err := grpc.Dial("localhost:50053", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("Client Could not connect %v\n", err)
+	}
+	defer courseServiceConnection.Close()
+
+	courseServiceClient = coursepb.NewCourseServiceClient(courseServiceConnection)
 
 	app.Listen(":8084")
 }
@@ -122,7 +148,17 @@ func setupRoutes(app *fiber.App) {
 	app.Get("/books", getAllBooks)
 	app.Get("/students/book/:id", getBorrowingStudents)
 	app.Delete("/delete/book/:id", deleteBook)
+
+	// Course Service related
+	app.Post("/create/course", createCourse)
+	app.Put("/update/course", updateCourse)
+	app.Get("/course/:id", getCourse)
+	app.Get("/courses", getAllCourses)
+	app.Get("/students/course/:id", getEnrolledStudents)
+	app.Delete("/delete/course/:id", deleteCourse)
 }
+
+/*-------------------------------Student Service Handlers------------------------------------*/
 
 // createStudent godoc
 // @tags Student Related
@@ -428,6 +464,8 @@ func dropCourse(c *fiber.Ctx) error {
 	return c.JSON(res.Course)
 }
 
+/*-------------------------------Book Service Handlers------------------------------------*/
+
 // createBook godoc
 // @tags Book Related
 // @Summary Creates a Book record with user input details and writes into database
@@ -585,6 +623,170 @@ func getBorrowingStudents(c *fiber.Ctx) error {
 	res, err := bookServiceClient.GetBorrowingStudents(context.Background(), req)
 	if err != nil {
 		log.Fatalf("Error calling getBorrowingStudents RPC.\n Error : %v\n", err)
+	}
+
+	return c.JSON(res.Students)
+}
+
+/*-------------------------------Course Service Handlers------------------------------------*/
+
+// createCourse godoc
+// @tags Course Related
+// @Summary Creates a Course record with user input details and writes into database
+// @Accept json
+// @Produce json
+// @Param details body CreateCourseModel true "Course details"
+// @Success 200 {object} Course
+// @Router /create/course [post]
+func createCourse(c *fiber.Ctx) error {
+	var course coursepb.Course
+
+	c.BodyParser(&course)
+
+	req := &coursepb.CreateCourseRequest{
+		Course: &course,
+	}
+
+	res, err := courseServiceClient.CreateCourse(context.Background(), req)
+	if err != nil {
+		log.Fatalf("Error creating a course from gRPC Book Service Server: %v", err)
+	}
+
+	return c.JSON(res.Course)
+}
+
+// getCourse godoc
+// @tags Course Related
+// @Summary Gets details of the Course from User input book ID
+// @Produce json
+// @Param id path integer true "Course ID"
+// @Success 200 {object} Course
+// @Router /course/{id} [get]
+func getCourse(c *fiber.Ctx) error {
+	idParam := c.Params("id")
+
+	// ID is initially a string when we get it from JSON
+	// convert into int to use in a query
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Create gRPC request
+	req := &coursepb.GetCourseRequest{
+		Id: int32(id),
+	}
+
+	// Make a call and get gRPC response
+	res, err := courseServiceClient.GetCourse(context.Background(), req)
+	if err != nil {
+		log.Fatalf("Error calling getCourse RPC. Error : %v\n", err)
+	}
+
+	return c.JSON(res.Course)
+}
+
+// getAllCourses godoc
+// @tags Course Related
+// @Summary Gets the list of all the courses
+// @Produce json
+// @Success 200 {object} []Course
+// @Router /courses [get]
+func getAllCourses(c *fiber.Ctx) error {
+
+	// Make a call and get gRPC response
+	res, err := courseServiceClient.GetAllCourses(context.Background(), &emptypb.Empty{})
+	if err != nil {
+		log.Fatalf("Error calling getAllCourses RPC. Error : %v\n", err)
+	}
+
+	return c.JSON(res.Courses)
+}
+
+// updateCourse godoc
+// @tags Course Related
+// @Summary Updates the course record with user input details
+// @Accept json
+// @Produce json
+// @Param details body Course true "Course details"
+// @Success 200 {object} Course
+// @Router /update/course [put]
+func updateCourse(c *fiber.Ctx) error {
+
+	var course coursepb.Course
+
+	c.BodyParser(&course)
+
+	req := &coursepb.UpdateCourseRequest{
+		Course: &course,
+	}
+
+	// Make a call and get gRPC response
+	res, err := courseServiceClient.UpdateCourse(context.Background(), req)
+	if err != nil {
+		log.Fatalf("Error updateCourse RPC. Error : %v\n", err)
+	}
+
+	return c.JSON(res.Course)
+}
+
+// deleteCourse godoc
+// @tags Course Related
+// @Summary Deletes the course with the given ID
+// @Produce json
+// @Param id path integer true "Course ID"
+// @Success 200 {object} Course
+// @Router /delete/course/{id} [delete]
+func deleteCourse(c *fiber.Ctx) error {
+	idParam := c.Params("id")
+
+	// ID is initially a string when we get it from JSON
+	// convert into int to use in a query
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Create gRPC request
+	req := &coursepb.DeleteCourseRequest{
+		Id: int32(id),
+	}
+
+	// Make a call and get gRPC response
+	res, err := courseServiceClient.DeleteCourse(context.Background(), req)
+	if err != nil {
+		log.Fatalf("Error calling deleteCourse RPC. Error : %v\n", err)
+	}
+
+	return c.JSON(res.Course)
+}
+
+// getEnrolledStudents godoc
+// @tags Course Related
+// @Summary Gets the list of all students who are enrolled to a particular course
+// @Produce json
+// @Param id path integer true "Course ID"
+// @Success 200 {object} []Student
+// @Router /students/course/{id} [get]
+func getEnrolledStudents(c *fiber.Ctx) error {
+	idParam := c.Params("id")
+
+	// ID is initially a string when we get it from JSON
+	// convert into int to use in a query
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Create gRPC request
+	req := &coursepb.GetEnrolledStudentsRequest{
+		CourseId: int32(id),
+	}
+
+	// Make a call and get gRPC response
+	res, err := courseServiceClient.GetEnrolledStudents(context.Background(), req)
+	if err != nil {
+		log.Fatalf("Error calling getEnrolledStudents RPC.\n Error : %v\n", err)
 	}
 
 	return c.JSON(res.Students)
