@@ -85,6 +85,7 @@ func (*server) GetAllStudents(ctx context.Context, req *empty.Empty) (*pb.GetAll
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer rows.Close()
 
 	var student pb.Student
 	var students []*pb.Student
@@ -248,8 +249,7 @@ func (*server) BorrowBook(ctx context.Context, req *pb.BorrowBookRequest) (*pb.B
 	_, err := db.Exec("INSERT INTO student_book (student_id, book_id) VALUES ($1, $2)", studentId, book.Id)
 	if err != nil {
 		log.Printf("There is no student or book with such Id.\n Error : %v\n", err)
-		res := &pb.BorrowBookResponse{}
-		return res, nil
+		return nil, err
 	}
 
 	//  Retrieve the book details and make RPC response

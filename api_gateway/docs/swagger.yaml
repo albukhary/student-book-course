@@ -1,5 +1,5 @@
 definitions:
-  main.Book:
+  model.Book:
     properties:
       author:
         type: string
@@ -8,7 +8,7 @@ definitions:
       title:
         type: string
     type: object
-  main.Course:
+  model.Course:
     properties:
       course_id:
         type: integer
@@ -17,21 +17,21 @@ definitions:
       title:
         type: string
     type: object
-  main.CreateBookModel:
+  model.CreateBookModel:
     properties:
       author:
         type: string
       title:
         type: string
     type: object
-  main.CreateCourseModel:
+  model.CreateCourseModel:
     properties:
       instructor:
         type: string
       title:
         type: string
     type: object
-  main.CreateStudentModel:
+  model.CreateStudentModel:
     properties:
       email:
         type: string
@@ -40,7 +40,7 @@ definitions:
       last_name:
         type: string
     type: object
-  main.Student:
+  model.Student:
     properties:
       email:
         type: string
@@ -51,14 +51,14 @@ definitions:
       last_Name:
         type: string
     type: object
-  main.Student_Book_Ids:
+  model.Student_Book_Ids:
     properties:
       book_id:
         type: integer
       student_id:
         type: integer
     type: object
-  main.Student_Course_Ids:
+  model.Student_Course_Ids:
     properties:
       course_id:
         type: integer
@@ -82,7 +82,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/main.Book'
+            $ref: '#/definitions/model.Book'
       summary: Gets details of the Book from User input book ID
       tags:
       - Book Related
@@ -95,7 +95,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/main.Book'
+              $ref: '#/definitions/model.Book'
             type: array
       summary: Gets the list of all the books
       tags:
@@ -115,7 +115,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/main.Book'
+              $ref: '#/definitions/model.Book'
             type: array
       summary: Retrieves the borrowed books of the student based on given ID
       tags:
@@ -134,7 +134,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/main.Course'
+            $ref: '#/definitions/model.Course'
       summary: Gets details of the Course from User input book ID
       tags:
       - Course Related
@@ -147,7 +147,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/main.Course'
+              $ref: '#/definitions/model.Course'
             type: array
       summary: Gets the list of all the courses
       tags:
@@ -167,7 +167,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/main.Course'
+              $ref: '#/definitions/model.Course'
             type: array
       summary: Retrieves the enrolled courses of the student based on given ID
       tags:
@@ -182,14 +182,14 @@ paths:
         name: details
         required: true
         schema:
-          $ref: '#/definitions/main.CreateBookModel'
+          $ref: '#/definitions/model.CreateBookModel'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/main.Book'
+            $ref: '#/definitions/model.Book'
       summary: Creates a Book record with user input details and writes into database
       tags:
       - Book Related
@@ -203,14 +203,14 @@ paths:
         name: details
         required: true
         schema:
-          $ref: '#/definitions/main.CreateCourseModel'
+          $ref: '#/definitions/model.CreateCourseModel'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/main.Course'
+            $ref: '#/definitions/model.Course'
       summary: Creates a Course record with user input details and writes into database
       tags:
       - Course Related
@@ -224,14 +224,14 @@ paths:
         name: details
         required: true
         schema:
-          $ref: '#/definitions/main.CreateStudentModel'
+          $ref: '#/definitions/model.CreateStudentModel'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/main.Student'
+            $ref: '#/definitions/model.Student'
       summary: Creates a student record with user input details and writes into database
       tags:
       - Student Related
@@ -249,7 +249,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/main.Book'
+            $ref: '#/definitions/model.Book'
       summary: Deletes the book with the given ID
       tags:
       - Book Related
@@ -267,7 +267,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/main.Course'
+            $ref: '#/definitions/model.Course'
       summary: Deletes the course with the given ID
       tags:
       - Course Related
@@ -285,7 +285,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/main.Student'
+            $ref: '#/definitions/model.Student'
       summary: Deletes a student with the specified ID
       tags:
       - Student Related
@@ -303,7 +303,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/main.Student'
+            $ref: '#/definitions/model.Student'
       summary: Retrieves user based on given ID
       tags:
       - Student Related
@@ -317,14 +317,14 @@ paths:
         name: student_book_ids
         required: true
         schema:
-          $ref: '#/definitions/main.Student_Book_Ids'
+          $ref: '#/definitions/model.Student_Book_Ids'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/main.Book'
+            $ref: '#/definitions/model.Book'
       summary: Borrows the book of a given Id for a given student ID
       tags:
       - Student Book Related
@@ -338,14 +338,14 @@ paths:
         name: student_course_ids
         required: true
         schema:
-          $ref: '#/definitions/main.Student_Course_Ids'
+          $ref: '#/definitions/model.Student_Course_Ids'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/main.Course'
+            $ref: '#/definitions/model.Course'
       summary: Drop the student of the given Id from the given course(ID)
       tags:
       - Student Course Related
@@ -359,14 +359,14 @@ paths:
         name: student_course_ids
         required: true
         schema:
-          $ref: '#/definitions/main.Student_Course_Ids'
+          $ref: '#/definitions/model.Student_Course_Ids'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/main.Course'
+            $ref: '#/definitions/model.Course'
       summary: Enrolls the student of the given Id to the given course ID
       tags:
       - Student Course Related
@@ -380,14 +380,14 @@ paths:
         name: student_book_ids
         required: true
         schema:
-          $ref: '#/definitions/main.Student_Book_Ids'
+          $ref: '#/definitions/model.Student_Book_Ids'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/main.Book'
+            $ref: '#/definitions/model.Book'
       summary: Hands in the book of a given Id for a given student ID
       tags:
       - Student Book Related
@@ -400,7 +400,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/main.Student'
+              $ref: '#/definitions/model.Student'
             type: array
       summary: Retrieves the list of all students
       tags:
@@ -420,7 +420,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/main.Student'
+              $ref: '#/definitions/model.Student'
             type: array
       summary: Gets the list of all students who borrowed a particular book
       tags:
@@ -440,7 +440,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/main.Student'
+              $ref: '#/definitions/model.Student'
             type: array
       summary: Gets the list of all students who are enrolled to a particular course
       tags:
@@ -455,14 +455,14 @@ paths:
         name: details
         required: true
         schema:
-          $ref: '#/definitions/main.Book'
+          $ref: '#/definitions/model.Book'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/main.Book'
+            $ref: '#/definitions/model.Book'
       summary: Updates the book record with user input details
       tags:
       - Book Related
@@ -476,14 +476,14 @@ paths:
         name: details
         required: true
         schema:
-          $ref: '#/definitions/main.Course'
+          $ref: '#/definitions/model.Course'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/main.Course'
+            $ref: '#/definitions/model.Course'
       summary: Updates the course record with user input details
       tags:
       - Course Related
@@ -497,14 +497,14 @@ paths:
         name: details
         required: true
         schema:
-          $ref: '#/definitions/main.Student'
+          $ref: '#/definitions/model.Student'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/main.Student'
+            $ref: '#/definitions/model.Student'
       summary: Updates a student record with user input details and writes into database
       tags:
       - Student Related

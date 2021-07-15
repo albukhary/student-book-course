@@ -26,7 +26,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main.Book"
+                            "$ref": "#/definitions/model.Book"
                         }
                     }
                 }
@@ -47,7 +47,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/main.Book"
+                                "$ref": "#/definitions/model.Book"
                             }
                         }
                     }
@@ -78,7 +78,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/main.Book"
+                                "$ref": "#/definitions/model.Book"
                             }
                         }
                     }
@@ -107,7 +107,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main.Course"
+                            "$ref": "#/definitions/model.Course"
                         }
                     }
                 }
@@ -128,7 +128,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/main.Course"
+                                "$ref": "#/definitions/model.Course"
                             }
                         }
                     }
@@ -159,7 +159,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/main.Course"
+                                "$ref": "#/definitions/model.Course"
                             }
                         }
                     }
@@ -185,7 +185,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/main.CreateBookModel"
+                            "$ref": "#/definitions/model.CreateBookModel"
                         }
                     }
                 ],
@@ -193,7 +193,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main.Book"
+                            "$ref": "#/definitions/model.Book"
                         }
                     }
                 }
@@ -218,7 +218,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/main.CreateCourseModel"
+                            "$ref": "#/definitions/model.CreateCourseModel"
                         }
                     }
                 ],
@@ -226,7 +226,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main.Course"
+                            "$ref": "#/definitions/model.Course"
                         }
                     }
                 }
@@ -251,7 +251,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/main.CreateStudentModel"
+                            "$ref": "#/definitions/model.CreateStudentModel"
                         }
                     }
                 ],
@@ -259,7 +259,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main.Student"
+                            "$ref": "#/definitions/model.Student"
                         }
                     }
                 }
@@ -287,7 +287,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main.Book"
+                            "$ref": "#/definitions/model.Book"
                         }
                     }
                 }
@@ -315,7 +315,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main.Course"
+                            "$ref": "#/definitions/model.Course"
                         }
                     }
                 }
@@ -343,7 +343,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main.Student"
+                            "$ref": "#/definitions/model.Student"
                         }
                     }
                 }
@@ -368,7 +368,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/main.Student_Book_Ids"
+                            "$ref": "#/definitions/model.Student_Book_Ids"
                         }
                     }
                 ],
@@ -376,7 +376,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main.Book"
+                            "$ref": "#/definitions/model.Book"
                         }
                     }
                 }
@@ -401,7 +401,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/main.Student_Course_Ids"
+                            "$ref": "#/definitions/model.Student_Course_Ids"
                         }
                     }
                 ],
@@ -409,7 +409,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main.Course"
+                            "$ref": "#/definitions/model.Course"
                         }
                     }
                 }
@@ -434,7 +434,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/main.Student_Course_Ids"
+                            "$ref": "#/definitions/model.Student_Course_Ids"
                         }
                     }
                 ],
@@ -442,7 +442,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main.Course"
+                            "$ref": "#/definitions/model.Course"
                         }
                     }
                 }
@@ -467,7 +467,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/main.Student_Book_Ids"
+                            "$ref": "#/definitions/model.Student_Book_Ids"
                         }
                     }
                 ],
@@ -475,7 +475,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main.Book"
+                            "$ref": "#/definitions/model.Book"
                         }
                     }
                 }
@@ -503,7 +503,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main.Student"
+                            "$ref": "#/definitions/model.Student"
                         }
                     }
                 }
@@ -524,7 +524,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/main.Student"
+                                "$ref": "#/definitions/model.Student"
                             }
                         }
                     }
@@ -555,7 +555,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/main.Student"
+                                "$ref": "#/definitions/model.Student"
                             }
                         }
                     }
@@ -586,7 +586,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/main.Student"
+                                "$ref": "#/definitions/model.Student"
                             }
                         }
                     }
@@ -612,7 +612,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/main.Book"
+                            "$ref": "#/definitions/model.Book"
                         }
                     }
                 ],
@@ -620,7 +620,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main.Book"
+                            "$ref": "#/definitions/model.Book"
                         }
                     }
                 }
@@ -645,7 +645,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/main.Course"
+                            "$ref": "#/definitions/model.Course"
                         }
                     }
                 ],
@@ -653,7 +653,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main.Course"
+                            "$ref": "#/definitions/model.Course"
                         }
                     }
                 }
@@ -678,7 +678,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/main.Student"
+                            "$ref": "#/definitions/model.Student"
                         }
                     }
                 ],
@@ -686,7 +686,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main.Student"
+                            "$ref": "#/definitions/model.Student"
                         }
                     }
                 }
@@ -694,7 +694,7 @@
         }
     },
     "definitions": {
-        "main.Book": {
+        "model.Book": {
             "type": "object",
             "properties": {
                 "author": {
@@ -708,7 +708,7 @@
                 }
             }
         },
-        "main.Course": {
+        "model.Course": {
             "type": "object",
             "properties": {
                 "course_id": {
@@ -722,7 +722,7 @@
                 }
             }
         },
-        "main.CreateBookModel": {
+        "model.CreateBookModel": {
             "type": "object",
             "properties": {
                 "author": {
@@ -733,7 +733,7 @@
                 }
             }
         },
-        "main.CreateCourseModel": {
+        "model.CreateCourseModel": {
             "type": "object",
             "properties": {
                 "instructor": {
@@ -744,7 +744,7 @@
                 }
             }
         },
-        "main.CreateStudentModel": {
+        "model.CreateStudentModel": {
             "type": "object",
             "properties": {
                 "email": {
@@ -758,7 +758,7 @@
                 }
             }
         },
-        "main.Student": {
+        "model.Student": {
             "type": "object",
             "properties": {
                 "email": {
@@ -775,7 +775,7 @@
                 }
             }
         },
-        "main.Student_Book_Ids": {
+        "model.Student_Book_Ids": {
             "type": "object",
             "properties": {
                 "book_id": {
@@ -786,7 +786,7 @@
                 }
             }
         },
-        "main.Student_Course_Ids": {
+        "model.Student_Course_Ids": {
             "type": "object",
             "properties": {
                 "course_id": {
