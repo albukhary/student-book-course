@@ -770,10 +770,10 @@ var doc = `{
                 "email": {
                     "type": "string"
                 },
-                "firstName": {
+                "first_name": {
                     "type": "string"
                 },
-                "lastName": {
+                "last_name": {
                     "type": "string"
                 }
             }
@@ -784,13 +784,13 @@ var doc = `{
                 "email": {
                     "type": "string"
                 },
-                "firstName": {
+                "first_Name": {
                     "type": "string"
                 },
                 "id": {
                     "type": "integer"
                 },
-                "lastName": {
+                "last_Name": {
                     "type": "string"
                 }
             }

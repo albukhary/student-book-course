@@ -125,7 +125,7 @@ func (*bookServer) DeleteBook(ctx context.Context, req *bookpb.DeleteBookRequest
 
 func (*bookServer) GetAllBooks(ctx context.Context, req *empty.Empty) (*bookpb.GetAllBooksResponse, error) {
 
-	rows, err := db.Query("SELECT book_id, title, author FROM book")
+	rows, err := db.Query("SELECT book_id, title, author FROM book ORDER BY book_id ASC")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -157,8 +157,8 @@ func (*bookServer) GetBorrowingStudents(ctx context.Context, req *bookpb.GetBorr
 	bookId := req.BookId
 
 	var studentIds []int
-	fmt.Println("Book Id: ", req.BookId)
-	err := db.Select(&studentIds, "SELECT student_id FROM student_book WHERE book_id=$1", bookId)
+
+	err := db.Select(&studentIds, "SELECT student_id FROM student_book WHERE book_id=$1 ORDER BY student_id ASC", bookId)
 	if err != nil {
 		log.Fatalf("There are no students who borrowed this book\n. %v\n", err)
 	}

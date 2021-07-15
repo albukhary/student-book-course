@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"io"
 	"log"
 	"net"
 	"os"
@@ -82,7 +81,7 @@ func (*server) GetStudent(ctx context.Context, req *pb.GetStudentRequest) (*pb.G
 func (*server) GetAllStudents(ctx context.Context, req *empty.Empty) (*pb.GetAllStudentsResponse, error) {
 
 	// fetch the students rows from database
-	rows, err := db.Query("SELECT student_id, first_name, last_name, email FROM student")
+	rows, err := db.Query("SELECT student_id, first_name, last_name, email FROM student ORDER BY student_id ASC")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -164,7 +163,7 @@ func (*server) GetEnrolledCourses(ctx context.Context, req *pb.GetEnrolledCourse
 	studentId := req.StudentId
 
 	// Use db.Select() to write all the rows in a slice
-	err := db.Select(&course_ids, "SELECT course_id FROM student_course WHERE student_id = $1", studentId)
+	err := db.Select(&course_ids, "SELECT course_id FROM student_course WHERE student_id = $1 ORDER BY course_id ASC", studentId)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -172,10 +171,6 @@ func (*server) GetEnrolledCourses(ctx context.Context, req *pb.GetEnrolledCourse
 	var messageCourses []*pb.Course
 
 	for _, course_id := range course_ids {
-
-		if err == io.EOF {
-			break
-		}
 
 		courseReq := &coursepb.GetCourseRequest{
 			Id: int32(course_id),
@@ -209,7 +204,7 @@ func (*server) GetBorrowedBooks(ctx context.Context, req *pb.GetBorrowedBooksReq
 	studentId := req.StudentId
 
 	// Use db.Select() to write all the rows in a slice
-	query := fmt.Sprintf("SELECT book_id FROM student_book WHERE student_id=%v", studentId)
+	query := fmt.Sprintf("SELECT book_id FROM student_book WHERE student_id=%v ORDER BY book_id ASC", studentId)
 	err := db.Select(&book_ids, query)
 	if err != nil {
 		log.Fatal(err)
@@ -218,10 +213,6 @@ func (*server) GetBorrowedBooks(ctx context.Context, req *pb.GetBorrowedBooksReq
 	var messageBooks []*pb.Book
 
 	for _, book_id := range book_ids {
-
-		if err == io.EOF {
-			break
-		}
 
 		bookReq := &bookpb.GetBookRequest{
 			Id: int32(book_id),
@@ -365,10 +356,6 @@ func main() {
 	// Register a service to the gRPC server
 	pb.RegisterStudentServiceServer(s, &server{})
 
-	if err := s.Serve(lis); err != nil {
-		log.Fatalf("Failed to serve %v", err)
-	}
-
 	/*-----------------------------------------------------------------------------------------------*/
 	/*-------------------------------Connection for Book Services------------------------------------*/
 	/*-----------------------------------------------------------------------------------------------*/
@@ -393,6 +380,10 @@ func main() {
 	defer courseServiceConnection.Close()
 
 	courseServiceClient = coursepb.NewCourseServiceClient(courseServiceConnection)
+
+	if err := s.Serve(lis); err != nil {
+		log.Fatalf("Failed to serve %v", err)
+	}
 }
 
 func setUpDatabase() {

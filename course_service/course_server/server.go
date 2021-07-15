@@ -108,7 +108,7 @@ func (*server) DeleteCourse(ctx context.Context, req *coursepb.DeleteCourseReque
 func (*server) GetAllCourses(ctx context.Context, req *empty.Empty) (*coursepb.GetAllCoursesResponse, error) {
 	var courses []*coursepb.Course
 
-	rows, err := db.Query("SELECT course_id, instructor, title FROM course")
+	rows, err := db.Query("SELECT course_id, instructor, title FROM course ORDER BY course_id ASC")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -142,7 +142,7 @@ func (*server) GetEnrolledStudents(ctx context.Context, req *coursepb.GetEnrolle
 
 	var studentIds []int
 
-	db.Select(&studentIds, "SELECT student_id from student_course WHERE course_id = $1", courseId)
+	db.Select(&studentIds, "SELECT student_id from student_course WHERE course_id = $1 ORDER BY student_id", courseId)
 
 	var students []*coursepb.Student
 	for _, studentId := range studentIds {

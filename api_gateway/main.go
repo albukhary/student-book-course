@@ -23,16 +23,16 @@ import (
 
 // We need these structs for swagger modeling
 type Student struct {
-	Id        int
-	FirstName string
-	LastName  string
-	Email     string
+	Id         int
+	First_Name string
+	Last_Name  string
+	Email      string
 }
 
 type CreateStudentModel struct {
-	FirstName string
-	LastName  string
-	Email     string
+	First_name string
+	Last_name  string
+	Email      string
 }
 
 type Course struct {
